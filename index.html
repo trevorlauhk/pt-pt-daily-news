@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PT-PT Daily News</title>
+<title>PT-PT Daily News – Learn European Portuguese</title>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -11,12 +11,16 @@
     --text: #1a1a1a;
     --muted: #6b7280;
     --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --oreo-bg: #fff7ed;
+    --oreo-border: #fb923c;
     --vocab-bg: #fef3c7;
     --vocab-fg: #92400e;
     --vocab-border: #f59e0b;
     --verb-bg: #fee2e2;
     --verb-fg: #991b1b;
     --verb-border: #ef4444;
+    --sync-bg: #dbeafe;
     --radius: 14px;
     --shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
   }
@@ -30,28 +34,35 @@
     -webkit-font-smoothing: antialiased;
   }
   .container {
-    max-width: 820px;
-    margin: 48px auto;
+    max-width: 860px;
+    margin: 40px auto;
     padding: 0 20px;
   }
   .card {
     background: var(--surface);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    padding: 40px;
-    transition: transform 0.2s ease;
+    padding: 36px;
+    margin-bottom: 24px;
+  }
+  .article-img {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
   }
   h1 {
-    font-size: 1.85rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    margin: 0 0 12px;
-    line-height: 1.25;
+    margin: 0 0 10px;
+    line-height: 1.3;
     letter-spacing: -0.02em;
   }
   .meta {
     color: var(--muted);
-    font-size: 0.9rem;
-    margin-bottom: 28px;
+    font-size: 0.85rem;
+    margin-bottom: 24px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -64,9 +75,29 @@
     background: var(--accent);
     border-radius: 50%;
   }
+  .oreo-block {
+    background: var(--oreo-bg);
+    border-left: 4px solid var(--oreo-border);
+    border-radius: 0 10px 10px 0;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    color: #7c2d12;
+  }
+  .oreo-header {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .oreo-content {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
   audio {
     width: 100%;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     border-radius: 10px;
     outline: none;
   }
@@ -82,33 +113,51 @@
     margin-bottom: 16px;
     font-weight: 500;
   }
-  .btn-translation:hover {
-    background: #1d4ed8;
-  }
-  .btn-translation:active {
-    transform: scale(0.98);
-  }
+  .btn-translation:hover { background: #1d4ed8; }
+  .btn-translation:active { transform: scale(0.98); }
   .translation-box {
-    background: #eff6ff;
+    background: var(--accent-light);
     border-left: 4px solid var(--accent);
-    padding: 20px 24px;
     border-radius: 0 10px 10px 0;
+    padding: 20px 22px;
     margin-bottom: 28px;
     color: #1e3a8a;
-    line-height: 1.7;
-    font-size: 1rem;
+    line-height: 1.8;
+    font-size: 0.97rem;
   }
-  .translation-box p {
-    margin: 0 0 0.9em;
+  .translation-box h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 8px;
+    color: #2563eb;
+  }
+  .translation-col + .translation-col {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #bfdbfe;
+  }
+  .sentence-content {
     text-align: justify;
   }
-  .translation-box p:last-child {
-    margin-bottom: 0;
-  }
-  .content p {
-    margin: 0 0 1.35em;
+  .pt-content p {
+    margin: 0;
     text-align: justify;
     font-size: 1.05rem;
+    line-height: 2;
+  }
+  .pt-sentence, .en-sentence, .cn-sentence {
+    cursor: default;
+    transition: background 0.2s ease;
+    padding: 2px 0;
+    border-radius: 4px;
+  }
+  .pt-sentence { display: inline; }
+  .pt-sentence:hover, .en-sentence:hover, .cn-sentence:hover {
+    background: var(--sync-bg);
+  }
+  .sentence-highlight {
+    background: var(--sync-bg) !important;
   }
   .tooltip {
     position: relative;
@@ -123,17 +172,13 @@
     border-bottom: 2.5px solid var(--vocab-border);
     color: var(--vocab-fg);
   }
-  .tooltip.vocab:hover {
-    background-color: #fde68a;
-  }
+  .tooltip.vocab:hover { background-color: #fde68a; }
   .tooltip.verb {
     background-color: var(--verb-bg);
     border-bottom: 2.5px solid var(--verb-border);
     color: var(--verb-fg);
   }
-  .tooltip.verb:hover {
-    background-color: #fecaca;
-  }
+  .tooltip.verb:hover { background-color: #fecaca; }
   .tooltip .tooltiptext {
     visibility: hidden;
     opacity: 0;
@@ -144,7 +189,7 @@
     border-radius: 8px;
     padding: 10px 12px;
     position: absolute;
-    z-index: 20;
+    z-index: 30;
     bottom: 130%;
     left: 50%;
     transform: translateX(-50%) translateY(4px);
@@ -184,9 +229,7 @@
     cursor: pointer;
     transition: background 0.2s, opacity 0.2s;
   }
-  #nextBtn:hover {
-    background: #1d4ed8;
-  }
+  #nextBtn:hover { background: #1d4ed8; }
   #nextBtn:disabled {
     background: #9ca3af;
     cursor: not-allowed;
@@ -212,116 +255,92 @@
     font-size: 0.85rem;
   }
   @media (max-width: 600px) {
-    .container { margin: 24px auto; }
-    .card { padding: 24px; }
-    h1 { font-size: 1.5rem; }
+    .container { margin: 20px auto; }
+    .card { padding: 22px; }
+    h1 { font-size: 1.45rem; }
     #nextBtn { font-size: 0.95rem; padding: 12px; }
+    .article-img { max-height: 240px; }
   }
 </style>
 </head>
 <body>
 <div class="container">
   <article class="card news-article" id="article-1" style="display: block;">
-    <h1>Número de cidadãos impedidos de entrar na UE subiu 7,1% em 2025</h1>
+    <h1>Diretor da Agência do Medicamento renuncia após semanas de pressão de Trump</h1>
     <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
+    <div class="oreo-block">
+      <div class="oreo-header">👨‍🏫 我 Oreo Sir 話齋 (Cantonese Teacher)</div>
+      <div class="oreo-content">呢條新聞講緊美國藥品管理局局長馬卡里因為唔肯批准水果味電子煙（cigarros eletrónicos com sabor a frutas），俾特朗普壓到辭職！同學仔，留意呢兩個詞語：「renunciar」係「辭職」嘅意思，同「demitir-se」差唔多；「pressão」就係「壓力」，例如「pressão política」即係「政治壓力」。記住呢啲生字，講新聞時就可以講得好流利喇！</div>
+    </div>
     <audio controls>
       <source src="news_1.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
-    <button class="btn-translation" data-target="translationBox1">Hide English Translation</button>
-    <div id="translationBox1" class="translation-box" style="display: block;">
-      <p>Number of citizens denied entry to the EU rose by 7.1% in 2025</p>
-<p>According to information from the European statistical service, in 2025, entry to the EU via external borders was denied to 132,600 people, a 7.1% increase compared to 2024 (123,835).
-Also in the year’s cumulative data, expulsion orders were issued to 491,950 third-country nationals, 5.8% more than the previous year, with Portugal ranking seventh among Member States, with 23,540 orders—a sharp rise compared to the 750 recorded the previous year.
-France (137,550), Germany (55,240), and Spain (53,700) were the countries that expelled the most foreigners, while Slovakia (500), Estonia (660), and Slovenia (880) were at the opposite end of the table.
-Furthermore, according to Eurostat, the number of people detected living illegally in a Member State fell by 21.7%, from 918,525 in 2024 to 719,395 in 2025 on average across the EU.
-Following a departure order, 135,460 people left the EU, 20.9% more than the previous year (112,040), with Germany leading the list of Member States with the most enforced expulsions (29,295), followed by France (14,940) and Sweden (11,250).
-Among the expelled citizens, the main nationalities were Turkish (13,405), Georgian (10,475), Syrian (8,370), and Albanian (8,020).
-In Portugal, entry was denied to 2,135 people, 735 people were identified as living illegally in the country, and there were 23,540 expulsion orders, of which 770 were enforced in 2025.
-Read also: Brussels prepares to tackle short-term rentals: What’s coming?</p>
+    <button class="btn-translation" data-target="transBox1">Hide Translation</button>
+    <div id="transBox1" class="translation-box" style="display: block;">
+      <div class="translation-col">
+        <h3>English</h3>
+        <div class="sentence-content"><span class="en-sentence" data-id="1">Makary was involved in several clashes with the White House over different issues, such as electronic cigarettes and abortion,</span> <span class="en-sentence" data-id="2">and the US Head of State had already shown his disappointment with the now former director for not acting quickly enough to approve those flavoured cigarettes and other nicotine products.</span> <span class="en-sentence" data-id="3">The alleged reason was to curb the rise in vaping among young people,</span> <span class="en-sentence" data-id="4">although, in the end, and after apparent pressure from Trump, Makary backtracked and authorised them.</span> <span class="en-sentence" data-id="5">In fact, according to the American press, Makary resigned due to his concern over the government&#x27;s decision to authorise these fruit-flavoured electronic cigarettes,</span> <span class="en-sentence" data-id="6">as his conscience did not allow him to approve them.</span> <span class="en-sentence" data-id="7">Although vaping was the reason that led to his resignation, the reality is that Makary&#x27;s arrival at the FDA as a reformer and with a willingness to make changes earned him numerous clashes both in Washington and on Wall Street.</span> <span class="en-sentence" data-id="8">His decisions clashed with the interests of powerful American food, tobacco, and pharmaceutical industries.</span> <span class="en-sentence" data-id="9">After the resignation of the FDA director was made public—announced early by the digital outlet Politico—Trump told reporters that he wished Makary the best.</span> <span class="en-sentence" data-id="10">&quot;Marty is a fantastic guy, but he&#x27;s moving on and will have a good life,&quot; Trump assured before starting an official trip to China.</span> <span class="en-sentence" data-id="11">&quot;He&#x27;s a great doctor and was having some difficulties,&quot; he added.</span></div>
+      </div>
+      <div class="translation-col">
+        <h3>中文</h3>
+        <div class="sentence-content"><span class="cn-sentence" data-id="1">馬卡里因電子煙及墮胎等不同議題與白宮多次發生衝突，</span> <span class="cn-sentence" data-id="2">美國總統早前已對這位現已離任的局長未能迅速批准那些加味香煙及其他尼古丁產品表示失望。</span> <span class="cn-sentence" data-id="3">聲稱的原因是為了遏制年輕人吸食電子煙的趨勢，</span> <span class="cn-sentence" data-id="4">儘管最終在特朗普明顯的壓力下，馬卡里改變立場並批准了這些產品。</span> <span class="cn-sentence" data-id="5">事實上，據美國媒體報導，馬卡里辭職是因為對政府批准這些水果味電子煙的決定感到擔憂，</span> <span class="cn-sentence" data-id="6">因為他的良心不允許他批准這些產品。</span> <span class="cn-sentence" data-id="7">雖然電子煙是導致他辭職的原因，但實際上，馬卡里以改革者身份加入FDA，並有意進行改革，這為他在華盛頓及華爾街招致了無數衝突。</span> <span class="cn-sentence" data-id="8">他的決定與美國強大的食品、煙草及製藥業利益發生衝突。</span> <span class="cn-sentence" data-id="9">在FDA局長辭職消息公開後——由數碼媒體《Politico》率先報導——特朗普向記者表示，他祝福馬卡里。</span> <span class="cn-sentence" data-id="10">「馬蒂是個很棒的人，但他會繼續前行，並會擁有美好的生活，」特朗普在啟程前往中國的官方訪問前表示。</span> <span class="cn-sentence" data-id="11">「他是一位傑出的醫生，也遇到了一些困難，」他補充道。</span></div>
+      </div>
     </div>
-    <div class="content">
-      <p>De acordo com a informação do serviço estatístico europeu, em 2025, foi <span class="tooltip verb">recusada<span class="tooltiptext">denied/refused<br>Infinitive: recusar</span></span> a entrada na UE através das fronteiras externas a 132.600 pessoas, uma <span class="tooltip vocab">subida<span class="tooltiptext">increase/rise</span></span> de 7,1% <span class="tooltip vocab">face<span class="tooltiptext">compared to/in relation to</span></span> a 2024 (123.835).
-Também no <span class="tooltip vocab">acumulado<span class="tooltiptext">cumulative/total</span></span> do ano, foram <span class="tooltip verb">dadas<span class="tooltiptext">issued/given<br>Infinitive: dar</span></span> ordens de <span class="tooltip vocab">expulsão<span class="tooltiptext">expulsion/deportation</span></span> a 491.950 cidadãos de países <span class="tooltip vocab">terceiros<span class="tooltiptext">third (as in third-country)</span></span>, mais 5,8% do que no ano <span class="tooltip vocab">anterior<span class="tooltiptext">previous</span></span>, com Portugal no sétimo lugar da <span class="tooltip vocab">tabela<span class="tooltiptext">table/ranking</span></span> dos Estados-membros, com 23.540, uma <span class="tooltip vocab">forte<span class="tooltiptext">sharp/strong</span></span> <span class="tooltip vocab">subida<span class="tooltiptext">increase/rise</span></span> <span class="tooltip vocab">face<span class="tooltiptext">compared to/in relation to</span></span> aos 750 do ano <span class="tooltip vocab">anterior<span class="tooltiptext">previous</span></span>.
-França (137.550), Alemanha (55.240), e Espanha (53.700) foram os países que mais estrangeiros <span class="tooltip verb">expulsaram<span class="tooltiptext">expelled/deported<br>Infinitive: expulsar</span></span>, com a Eslováquia (500), a Estónia (660), e a Eslovénia (880) no <span class="tooltip vocab">extremo<span class="tooltiptext">opposite end/extreme</span></span> oposto da <span class="tooltip vocab">tabela<span class="tooltiptext">table/ranking</span></span>.
-Ainda segundo o Eurostat, o número de pessoas que foram <span class="tooltip verb">detetadas<span class="tooltiptext">detected<br>Infinitive: detetar</span></span> a viver ilegalmente num Estado-membro <span class="tooltip verb">desceu<span class="tooltiptext">fell/decreased<br>Infinitive: descer</span></span> 21,7%, de 918.525 em 2024 para 719.395 em 2025 na média da UE.
-Após uma ordem de saída, 135.460 pessoas <span class="tooltip verb">abandonaram<span class="tooltiptext">left/departed<br>Infinitive: abandonar</span></span> a UE, mais 20,9% do que no ano <span class="tooltip vocab">anterior<span class="tooltiptext">previous</span></span> (112.040), com a Alemanha à cabeça da lista dos Estados-membros com mais expulsões <span class="tooltip verb">concretizadas<span class="tooltiptext">enforced/carried out<br>Infinitive: concretizar</span></span> (29.295), seguida por França (14.940) e pela Suécia (11.250).
-Entre os cidadãos expulsos, as principais nacionalidades foram a turca (13.405), georgiana (10.475), síria (8.370) e albanesa (8.020).
-Em Portugal, foi <span class="tooltip verb">recusada<span class="tooltiptext">denied/refused<br>Infinitive: recusar</span></span> a entrada a 2.135 pessoas, foram <span class="tooltip verb">identificadas<span class="tooltiptext">identified<br>Infinitive: identificar</span></span> 735 pessoas a viver ilegalmente no país e houve 23.540 ordens de <span class="tooltip vocab">expulsão<span class="tooltiptext">expulsion/deportation</span></span>, das quais 770 se concretizaram em 2025.
-Leia Também: Bruxelas prepara-se para combater rendas de curta duração: O que vem aí?</p>
+    <div class="content pt-content">
+      <p><span class="pt-sentence" data-id="1">Makary <span class="tooltip verb">protagonizou<span class="tooltiptext">to play a leading role in / to be involved in<br>Infinitive: protagonizar</span></span> vários <span class="tooltip vocab">confrontos<span class="tooltiptext">clashes / conflicts</span></span> com a Casa Branca por diferentes questões, como os cigarros eletrónicos ou o aborto,</span> <span class="pt-sentence" data-id="2">e o Chefe de Estado dos EUA já tinha mostrado a sua <span class="tooltip vocab">deceção<span class="tooltiptext">disappointment</span></span> com o agora ex-diretor por não agir com a rapidez suficiente para aprovar aqueles cigarros com sabores e outros produtos com nicotina.</span> <span class="pt-sentence" data-id="3">O motivo alegado era travar o aumento do consumo de <span class="tooltip vocab">vapeadores<span class="tooltiptext">vapes / e-cigarettes</span></span> entre os mais jovens,</span> <span class="pt-sentence" data-id="4">embora, finalmente, e após as aparentes pressões de Trump, Makary tenha <span class="tooltip verb">retificado<span class="tooltiptext">to rectify / to backtrack<br>Infinitive: retificar</span></span> e autorizado os mesmos.</span> <span class="pt-sentence" data-id="5">De facto, e segundo publica a imprensa norte-americana, Makary terá <span class="tooltip verb">renunciado<span class="tooltiptext">to resign<br>Infinitive: renunciar</span></span> devido à sua preocupação com a decisão do Governo de autorizar esses cigarros eletrónicos com sabor a frutas,</span> <span class="pt-sentence" data-id="6">já que a sua <span class="tooltip vocab">consciência<span class="tooltiptext">conscience</span></span> não lhe permitia aprová-los.</span> <span class="pt-sentence" data-id="7">Embora os <span class="tooltip vocab">vapeadores<span class="tooltiptext">vapes / e-cigarettes</span></span> tenham sido o motivo que determinou a renúncia, a realidade é que a chegada de Makary à FDA como um reformador e com vontade de fazer mudanças <span class="tooltip verb">valeu-lhe<span class="tooltiptext">earned him / brought him<br>Infinitive: valer</span></span> numerosos <span class="tooltip vocab">confrontos<span class="tooltiptext">clashes / conflicts</span></span> tanto em Washington como em Wall Street.</span> <span class="pt-sentence" data-id="8">As suas decisões <span class="tooltip verb">chocaram<span class="tooltiptext">to clash / to collide<br>Infinitive: chocar</span></span> com os interesses das <span class="tooltip vocab">poderosas<span class="tooltiptext">powerful</span></span> indústrias alimentar, tabágica e farmacêutica norte-americana.</span> <span class="pt-sentence" data-id="9">Após tornar-se pública a renúncia do diretor da FDA - antecipada pelo meio digital Político - Trump declarou aos jornalistas que desejava o melhor a Makary.</span> <span class="pt-sentence" data-id="10">&quot;Marty é um tipo fantástico, mas vai seguir em frente e vai ter uma boa vida&quot;, <span class="tooltip verb">assegurou<span class="tooltiptext">to assure<br>Infinitive: assegurar</span></span> Trump antes de iniciar uma viagem oficial à China.</span> <span class="pt-sentence" data-id="11">&quot;É um grande médico e estava a ter algumas dificuldades&quot;, <span class="tooltip verb">acrescentou<span class="tooltiptext">to add<br>Infinitive: acrescentar</span></span>.</span></p>
     </div>
   </article>
 <article class="card news-article" id="article-2" style="display: none;">
-    <h1>Uma criança palestiniana morta na Cisjordânia a cada semana, diz UNICEF</h1>
+    <h1>Sistema antimíssil de Trump estimado em 1,2 mil milhões de dólares</h1>
     <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
+    <div class="oreo-block">
+      <div class="oreo-header">👨‍🏫 我 Oreo Sir 話齋 (Cantonese Teacher)</div>
+      <div class="oreo-content">呢條新聞講緊特朗普想整個「金穹」反導彈系統，同以色列個「Iron Dome」（鐵穹）好似，但成本貴到爆！CBO話20年要12億美元，仲話太空部分佔成本60%。A2/B1同學記住兩個詞語：「desenvolver」（開發）同「custo」（成本）。「Desenvolver um sistema」即係開發一個系統，「custo total」即係總成本。記住呢啲詞，講科技同金錢嘅時候好有用！</div>
+    </div>
     <audio controls>
       <source src="news_2.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
-    <button class="btn-translation" data-target="translationBox2">Hide English Translation</button>
-    <div id="translationBox2" class="translation-box" style="display: block;">
-      <p>&quot;Children are paying an intolerable price due to the escalation of military operations and attacks across the occupied West Bank, including East Jerusalem,&quot; said UNICEF spokesperson James Elder during a press conference held in Geneva, Switzerland. &quot;Between January 2025 and today, at least one Palestinian child has been killed, on average, every week in the occupied West Bank, including in Jerusalem, which is under Israeli control,&quot; he added. Israel frequently conducts raids in the West Bank and also targets those who throw stones, many of whom are teenagers, who, according to the military, pose a danger to Israeli drivers. Read also: Netanyahu denounces &#x27;moral bankruptcy&#x27; of the EU after sanctions on settlers&quot;,</p>
+    <button class="btn-translation" data-target="transBox2">Hide Translation</button>
+    <div id="transBox2" class="translation-box" style="display: block;">
+      <div class="translation-col">
+        <h3>English</h3>
+        <div class="sentence-content"><span class="en-sentence" data-id="1">The figure was released by the Congressional Budget Office (CBO), reported the France-Presse (AFP) agency.</span> <span class="en-sentence" data-id="2">In 2025, the US president announced his intention to develop this missile defense system based on the Israeli &#x27;Iron Dome&#x27; model.</span> <span class="en-sentence" data-id="3">The goal is to have it operational before the end of his term in 2029.</span> <span class="en-sentence" data-id="4">At the time, he estimated the total cost at &#x27;approximately $175 billion upon completion.&#x27;</span> <span class="en-sentence" data-id="5">However, many experts at the time pointed out that the project was unrealistic and redundant.</span> <span class="en-sentence" data-id="6">Considering the missile defense systems already in use by the United States.</span> <span class="en-sentence" data-id="7">In a report published today by the CBO, this independent Congressional agency estimates that a national missile defense system would cost approximately $1.2 billion.</span> <span class="en-sentence" data-id="8">To be developed, deployed, and operated over 20 years.</span> <span class="en-sentence" data-id="9">According to the CBO, the space component of the system would account for nearly 60% of the total costs.</span> <span class="en-sentence" data-id="10">Like the Strategic Defense Initiative (SDI), or &#x27;Star Wars,&#x27; launched by Ronald Reagan in the 1980s, the Golden Dome aims to position interceptor satellites in space.</span> <span class="en-sentence" data-id="11">The goal is to quickly destroy any intercontinental ballistic missile heading toward the United States.</span> <span class="en-sentence" data-id="12">China and Russia declared last year their strong opposition to this project by Donald Trump.</span></div>
+      </div>
+      <div class="translation-col">
+        <h3>中文</h3>
+        <div class="sentence-content"><span class="cn-sentence" data-id="1">這一數字由國會預算辦公室（CBO）公佈，法新社（AFP）報導。</span> <span class="cn-sentence" data-id="2">2025年，美國總統宣布有意開發這套基於以色列「鐵穹」模式的導彈防禦系統。</span> <span class="cn-sentence" data-id="3">目標是在其2029年任期結束前投入運作。</span> <span class="cn-sentence" data-id="4">當時，他估計完工後總成本約為「1750億美元」。</span> <span class="cn-sentence" data-id="5">然而，許多專家當時指出，該項目不切實際且多餘。</span> <span class="cn-sentence" data-id="6">考慮到美國已有的導彈防禦系統。</span> <span class="cn-sentence" data-id="7">國會預算辦公室今日發布的一份報告中，這一國會獨立機構估計，一套國家導彈防禦系統的成本約為12億美元。</span> <span class="cn-sentence" data-id="8">在20年內開發、部署及運作。</span> <span class="cn-sentence" data-id="9">根據CBO的數據，系統的太空部分將佔總成本近60%。</span> <span class="cn-sentence" data-id="10">與羅納德·里根在1980年代推出的戰略防禦計劃（SDI，又稱「星球大戰」）類似，「金穹」計劃旨在太空部署攔截衛星。</span> <span class="cn-sentence" data-id="11">目標是迅速摧毀任何飛向美國的洲際彈道導彈。</span> <span class="cn-sentence" data-id="12">中國和俄羅斯去年已強烈反對特朗普的這一項目。</span></div>
+      </div>
     </div>
-    <div class="content">
-      <p>&quot;As crianças <span class="tooltip verb">estão a pagar<span class="tooltiptext">are paying<br>Infinitive: pagar</span></span> um preço <span class="tooltip vocab">intolerável<span class="tooltiptext">intolerable</span></span> devido à <span class="tooltip vocab">escalada<span class="tooltiptext">escalation</span></span> das operações militares e dos ataques em toda a Cisjordânia <span class="tooltip verb">ocupada<span class="tooltiptext">occupied<br>Infinitive: ocupar</span></span>, incluindo Jerusalém Oriental&quot;, <span class="tooltip verb">disse<span class="tooltiptext">said<br>Infinitive: dizer</span></span> o <span class="tooltip vocab">porta-voz<span class="tooltiptext">spokesperson</span></span> da UNICEF, James Elder, numa conferência de imprensa <span class="tooltip verb">realizada<span class="tooltiptext">held<br>Infinitive: realizar</span></span> em Genebra, Suíça.
-&quot;Entre janeiro de 2025 e hoje, pelo menos uma criança palestiniana foi morta, em média, todas as semanas na Cisjordânia <span class="tooltip verb">ocupada<span class="tooltiptext">occupied<br>Infinitive: ocupar</span></span>, incluindo em Jerusalém, <span class="tooltip verb">controlada<span class="tooltiptext">controlled<br>Infinitive: controlar</span></span> por Israel&quot;, <span class="tooltip verb">acrescentou<span class="tooltiptext">added<br>Infinitive: acrescentar</span></span>.
-Israel <span class="tooltip verb">realiza<span class="tooltiptext">conducts<br>Infinitive: realizar</span></span> frequentes <span class="tooltip vocab">incursões<span class="tooltiptext">raids</span></span> na Cisjordânia e também <span class="tooltip verb">tem como alvo<span class="tooltiptext">targets<br>Infinitive: ter</span></span> aqueles que <span class="tooltip verb">atiram<span class="tooltiptext">throw<br>Infinitive: atirar</span></span> <span class="tooltip vocab">pedras<span class="tooltiptext">stones</span></span>, muitos dos quais são adolescentes, que, segundo os militares, <span class="tooltip verb">representam<span class="tooltiptext">pose/represent<br>Infinitive: representar</span></span> um perigo para os <span class="tooltip vocab">condutores<span class="tooltiptext">drivers</span></span> israelitas.
-Leia Também: Netanyahu <span class="tooltip verb">denuncia<span class="tooltiptext">denounces<br>Infinitive: denunciar</span></span> &quot;<span class="tooltip vocab">falência<span class="tooltiptext">bankruptcy</span></span> moral&quot; da UE após <span class="tooltip vocab">sanções<span class="tooltiptext">sanctions</span></span> a <span class="tooltip vocab">colonos<span class="tooltiptext">settlers</span></span></p>
+    <div class="content pt-content">
+      <p><span class="pt-sentence" data-id="1">O valor foi <span class="tooltip verb">adiantado<span class="tooltiptext">released/advanced<br>Infinitive: adiantar</span></span> pelo Gabinete Orçamental do Congresso (CBO, na sigla em inglês), noticiou a agência France-Presse (AFP).</span> <span class="pt-sentence" data-id="2">Em 2025, o presidente norte-americano <span class="tooltip verb">anunciou<span class="tooltiptext">announced<br>Infinitive: anunciar</span></span> a sua intenção de <span class="tooltip verb">desenvolver<span class="tooltiptext">to develop<br>Infinitive: desenvolver</span></span> este sistema de defesa antimíssil baseado no modelo israelita &quot;Iron Dome&quot;.</span> <span class="pt-sentence" data-id="3">O objetivo é o ter <span class="tooltip vocab">operacional<span class="tooltiptext">operational</span></span> antes do final do seu <span class="tooltip vocab">mandato<span class="tooltiptext">term (in office)</span></span>, em 2029.</span> <span class="pt-sentence" data-id="4">Na altura, <span class="tooltip verb">estimou<span class="tooltiptext">estimated<br>Infinitive: estimar</span></span> o custo total em &quot;aproximadamente 175 mil milhões de dólares após a <span class="tooltip vocab">conclusão<span class="tooltiptext">completion</span></span>&quot;.</span> <span class="pt-sentence" data-id="5">Contudo, muitos especialistas <span class="tooltip verb">apontaram<span class="tooltiptext">pointed out<br>Infinitive: apontar</span></span>, na época, que o projeto era <span class="tooltip vocab">irrealista<span class="tooltiptext">unrealistic</span></span> e <span class="tooltip vocab">redundante<span class="tooltiptext">redundant</span></span>.</span> <span class="pt-sentence" data-id="6">Considerando os sistemas de defesa antimíssil já em uso pelos Estados Unidos.</span> <span class="pt-sentence" data-id="7">Num relatório <span class="tooltip verb">publicado<span class="tooltiptext">published<br>Infinitive: publicar</span></span> hoje pelo CBO, esta agência <span class="tooltip vocab">independente<span class="tooltiptext">independent</span></span> do Congresso estima que um sistema nacional de defesa antimíssil custaria aproximadamente 1,2 mil milhões de dólares.</span> <span class="pt-sentence" data-id="8">Para ser desenvolvido, <span class="tooltip verb">implantado<span class="tooltiptext">deployed<br>Infinitive: implantar</span></span> e <span class="tooltip verb">operado<span class="tooltiptext">operated<br>Infinitive: operar</span></span> ao longo de 20 anos.</span> <span class="pt-sentence" data-id="9">De acordo com o CBO, a componente espacial do sistema <span class="tooltip verb">representaria<span class="tooltiptext">would account for<br>Infinitive: representar</span></span> quase 60% dos custos totais.</span> <span class="pt-sentence" data-id="10">Tal como a Iniciativa de Defesa Estratégica (SDI, na sigla em inglês), ou Guerra das Estrelas, <span class="tooltip verb">lançada<span class="tooltiptext">launched<br>Infinitive: lançar</span></span> por Ronald Reagan na década de 1980, a Golden Dome pretende <span class="tooltip verb">posicionar<span class="tooltiptext">to position<br>Infinitive: posicionar</span></span> satélites <span class="tooltip vocab">intercetores<span class="tooltiptext">interceptors</span></span> no espaço.</span> <span class="pt-sentence" data-id="11">O objetivo é <span class="tooltip verb">destruir<span class="tooltiptext">to destroy<br>Infinitive: destruir</span></span> rapidamente qualquer míssil <span class="tooltip vocab">balístico<span class="tooltiptext">ballistic</span></span> <span class="tooltip vocab">intercontinental<span class="tooltiptext">intercontinental</span></span> que se dirija para os Estados Unidos.</span> <span class="pt-sentence" data-id="12">A China e a Rússia <span class="tooltip verb">declararam<span class="tooltiptext">declared<br>Infinitive: declarar</span></span> no ano passado a sua forte <span class="tooltip vocab">oposição<span class="tooltiptext">opposition</span></span> a este projeto de Donald Trump.</span></p>
     </div>
   </article>
 <article class="card news-article" id="article-3" style="display: none;">
-    <h1>&quot;Não há indícios de surto de maior dimensão&quot;, mas &quot;trabalho não terminou&quot;</h1>
+    <h1>Acordo comercial com UE abre &quot;novos horizontes&quot; comerciais ao México</h1>
     <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
+    <div class="oreo-block">
+      <div class="oreo-header">👨‍🏫 我 Oreo Sir 話齋 (Cantonese Teacher)</div>
+      <div class="oreo-content">呢條新聞講緊歐盟同墨西哥簽新貿易協定，可以話係「開新路」俾墨西哥經濟！Oreo Sir 提醒大家留意兩個詞語：1. 「acordo comercial」（貿易協定），讀「a-cor-do co-mer-ci-al」；2. 「investimento estrangeiro」（外國投資），讀「in-ves-ti-men-to es-tran-gei-ro」。呢啲詞語喺新聞同商業對話好常見，記得要學識佢哋！</div>
+    </div>
     <audio controls>
       <source src="news_3.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
-    <button class="btn-translation" data-target="translationBox3">Hide English Translation</button>
-    <div id="translationBox3" class="translation-box" style="display: block;">
-      <p>WHO Director-General Tedros Adhanom Ghebreyesus confirmed this Tuesday that there are 11 suspected cases linked to the hantavirus outbreak, nine of which have been confirmed, and two others that will &#x27;certainly&#x27; also be considered positive. Although he stressed that &#x27;there is no indication that a larger-scale outbreak will occur,&#x27; the official did not rule out that &#x27;the situation may change.&#x27;</p>
-<p>&#x27;These numbers have not changed much over the past week, thanks to the efforts of many governments, and no deaths have been recorded since May 2. [...] All suspected and confirmed cases have been isolated and are being managed under strict medical supervision, thus minimizing the risk of any further transmission. At this time, there is no indication that a larger-scale outbreak will occur,&#x27; he said during a joint press conference with Spanish Prime Minister Pedro Sánchez.</p>
-<p>Tedros Adhanom Ghebreyesus emphasized that &#x27;it was to be expected that there would be more cases, because […] the first case emerged on April 6, and until it was confirmed that the patient was contagious, around April 24 or 25, there was a lot of interaction among the passengers&#x27; on the MV Hondius.</p>
-<p>&#x27;As you know, the incubation period is six to eight weeks. Due to the interaction while they were still on the ship, even though some preventive measures were taken... it is to be expected that more cases will emerge,&#x27; he added.</p>
-<p>He reiterated: &#x27;There is no evidence that we are facing the start of a larger-scale outbreak. However, of course, the situation may change, and given the virus&#x27;s long incubation period, it is possible that we will see more cases in the coming weeks.&#x27;</p>
-<p>The WHO Director-General also set May 10 as the start of the hantavirus quarantine period, which will last until June 21.</p>
-<p>&#x27;The recommendation we are making is that there should be strict supervision at home or in a quarantine facility for 42 days, starting from May 10, which takes us to June 21,&#x27; he said.</p>
-<p>Despite &#x27;hoping&#x27; that countries will follow &#x27;the advice and recommendations&#x27; of the organization, which &#x27;has clear guidelines,&#x27; the official recalled &#x27;the issue of national sovereignty&#x27;: &#x27;We cannot force countries to apply our protocols. We can only advise and recommend.&#x27;</p>
-<p>Tedros Adhanom Ghebreyesus nevertheless indicated that &#x27;anyone showing symptoms will have to be isolated and treated immediately.&#x27; In this regard, he underscored that &#x27;the work is not yet finished,&#x27; even though the repatriation operation for the Hondius passengers has been declared complete.</p>
-<p>The WHO Director-General also reported that all passengers who disembarked from the MV Hondius have been located, including those who left the ship before the operation in the Canary Islands.</p>
-<p>&#x27;As far as we know, I believe that the passengers who disembarked earlier have already been located. I think there is one in a very remote location, and the United Kingdom managed to locate him through a series of quite complex procedures, and his situation is being closely monitored,&#x27; he said, referring to a British national who was found on Tristan da Cunha island.</p>
-<p>The official also clarified that he had asked for Spain&#x27;s help, whose leadership he thanked, because the situation &#x27;exceeded&#x27; Cape Verde&#x27;s capacity.</p>
-<p>&#x27;The world does not need more selfishness or more fear&#x27;</p>
-<p>Spanish Prime Minister Pedro Sánchez, for his part, considered the disembarkation operation for the MV Hondius passengers &#x27;a success&#x27; but assured that &#x27;we will not let our guard down.&#x27;</p>
-<p>&#x27;We will continue to closely monitor the progress of the passengers who are currently hospitalized at Gómez Ulla,&#x27; he said.</p>
-<p>Sánchez also highlighted that &#x27;the world does not need more selfishness or more fear,&#x27; defending the decision to welcome the ship affected by the hantavirus outbreak in the Canary Islands.</p>
-<p>&#x27;In recent days, we have heard many public officials questioning why the African country of Cape Verde did not host the operation. [...] But for us, it was clear that this was not the issue, that the real question was another. Why wouldn’t we help those in need if we have the means to do so?&#x27; he stated.</p>
-<p>The head of government also stressed that the operation showed &#x27;the world that Spain is a country committed to health and multilateralism, a country that also helps others whenever it can and when it is necessary.&#x27;</p>
-<p>&#x27;It is our moral duty to the 150 families of tourists and workers who were going through the worst moment of their lives,&#x27; he said.</p>
-<p>It should be recalled that, to date, three people have died as a result of a hantavirus outbreak that struck the MV Hondius, which was traveling from Argentina across the South Atlantic and triggered an international health alert last weekend.</p>
-<p>Hantavirus is generally transmitted from infected rodents. The variant detected on the cruise ship, the Andes hantavirus, is rare and can be transmitted from person to person. The symptoms of infection are initially similar to those of the flu, including cough, fatigue, or headaches and muscle pain. Depending on the strain, it can cause a pulmonary or renal infection.</p>
+    <button class="btn-translation" data-target="transBox3">Hide Translation</button>
+    <div id="transBox3" class="translation-box" style="display: block;">
+      <div class="translation-col">
+        <h3>English</h3>
+        <div class="sentence-content"><span class="en-sentence" data-id="1">The updated trade agreement between the EU and Mexico will be signed on May 22 in Mexico City, in the presence of European Commission President Ursula von der Leyen, at the high-level bilateral summit for the first time in over a decade.</span> <span class="en-sentence" data-id="2">&#x27;It is very important to move forward with the revision of the treaty with the United States and Canada; it is fundamental, but we are also opening other avenues.&#x27;</span> <span class="en-sentence" data-id="3">&#x27;We are opening new horizons (...) because we also need to protect our economy.&#x27;</span> <span class="en-sentence" data-id="4">According to Claudia Sheinbaum, the update of the agreement with the EU will attract more foreign investment to Mexico and increase the commercialization of the Latin American country&#x27;s products in Europe.</span> <span class="en-sentence" data-id="5">Negotiations for a revised agreement began in May 2016, and a principle agreement on trade aspects was reached in 2018 but was never ratified.</span> <span class="en-sentence" data-id="6">The revised agreement includes new areas such as digital commerce, support for small and medium-sized enterprises (SMEs), and preferential access for Mexican agro-food products in the European market.</span> <span class="en-sentence" data-id="7">Sheinbaum highlighted that the modernized agreement demonstrates security for foreign investment.</span> <span class="en-sentence" data-id="8">&#x27;It is a very positive step and clearly demonstrates the security that exists in relation to the country.&#x27;</span> <span class="en-sentence" data-id="9">The update of the agreement with the EU coincides with negotiations between Mexico, the United States, and Canada to review their free trade agreement, the USMCA, amid the aggressive tariff policies of U.S. President Donald Trump.</span> <span class="en-sentence" data-id="10">Mexico is the EU&#x27;s second-largest trading partner in Latin America, after Brazil.</span> <span class="en-sentence" data-id="11">In 2025, the European Union was the second-largest market for Mexican exports, with 27.7 billion dollars (23.6 billion euros), while imports totaled nearly 67 billion dollars (57 billion euros).</span></div>
+      </div>
+      <div class="translation-col">
+        <h3>中文</h3>
+        <div class="sentence-content"><span class="cn-sentence" data-id="1">歐盟與墨西哥之間的更新貿易協定將於5月22日在墨西哥城簽署，屆時歐盟委員會主席烏爾蘇拉·馮德萊恩將出席這場十多年來首次舉行的高級別雙邊峰會。</span> <span class="cn-sentence" data-id="2">「推進與美國和加拿大的條約修訂非常重要，這是基礎，但我們也在開拓其他途徑。」</span> <span class="cn-sentence" data-id="3">「我們正在開拓新的視野……（因為）我們也需要保護我們的經濟。」</span> <span class="cn-sentence" data-id="4">克勞迪婭·辛鮑姆表示，與歐盟的協定更新將吸引更多外國投資到墨西哥，並增加拉丁美洲國家產品在歐洲的商業化。</span> <span class="cn-sentence" data-id="5">修訂協定的談判始於2016年5月，2018年就貿易方面達成原則性協議，但從未獲得批准。</span> <span class="cn-sentence" data-id="6">修訂後的協定涵蓋了新領域，如數字貿易、對中小企業（PME）的支持，以及墨西哥農產食品在歐洲市場的優先准入。</span> <span class="cn-sentence" data-id="7">辛鮑姆強調，現代化的協定展示了對外國投資的安全保障。</span> <span class="cn-sentence" data-id="8">「這是非常積極的一步，充分展示了對該國的投資安全。」</span> <span class="cn-sentence" data-id="9">歐盟與墨西哥的協定更新正值墨西哥、美國和加拿大就審查其自由貿易協定《美墨加協定》（USMCA）進行談判之際，當時美國總統唐納德·特朗普的關稅政策咄咄逼人。</span> <span class="cn-sentence" data-id="10">墨西哥是歐盟在拉丁美洲的第二大貿易夥伴，僅次於巴西。</span> <span class="cn-sentence" data-id="11">2025年，歐盟是墨西哥出口的第二大市場，出口額達277億美元（236億歐元），而進口總額則接近670億美元（570億歐元）。</span></div>
+      </div>
     </div>
-    <div class="content">
-      <p>O diretor-geral da Organização Mundial da Saúde (OMS), Tedros Adhanom Ghebreyesus, <span class="tooltip verb">confirmou<span class="tooltiptext">confirmed<br>Infinitive: confirmar</span></span>, esta terça-feira, que há 11 casos <span class="tooltip vocab">suspeitos<span class="tooltiptext">suspected</span></span> <span class="tooltip verb">associados<span class="tooltiptext">linked/associated<br>Infinitive: associar</span></span> ao <span class="tooltip vocab">surto<span class="tooltiptext">outbreak</span></span> de hantavírus, nove dos quais confirmados, e outros dois que &quot;certamente&quot; também serão considerados positivos. Ainda que tenha frisado que &quot;nada indica que venha a <span class="tooltip verb">ocorrer<span class="tooltiptext">to occur/happen<br>Infinitive: ocorrer</span></span> um <span class="tooltip vocab">surto<span class="tooltiptext">outbreak</span></span> de maior <span class="tooltip vocab">dimensão<span class="tooltiptext">scale/size</span></span>&quot;, o responsável não <span class="tooltip verb">descartou<span class="tooltiptext">ruled out<br>Infinitive: descartar</span></span> que &quot;a situação possa mudar&quot;.
-&quot;São números que não se <span class="tooltip verb">alteraram<span class="tooltiptext">changed<br>Infinitive: alterar</span></span> muito ao longo da última semana, graças ao esforço de muitos governos, e não se <span class="tooltip verb">registaram<span class="tooltiptext">recorded<br>Infinitive: registar</span></span> <span class="tooltip vocab">óbitos<span class="tooltiptext">deaths</span></span> desde o passado dia 2 de maio. [...] Todos os casos <span class="tooltip vocab">suspeitos<span class="tooltiptext">suspected</span></span> e confirmados foram <span class="tooltip verb">isolados<span class="tooltiptext">isolated<br>Infinitive: isolar</span></span> e estão a ser <span class="tooltip verb">geridos<span class="tooltiptext">managed<br>Infinitive: gerir</span></span> sob <span class="tooltip vocab">supervisão<span class="tooltiptext">supervision</span></span> médica rigorosa, <span class="tooltip verb">minimizando<span class="tooltiptext">minimizing<br>Infinitive: minimizar</span></span> assim o risco de qualquer <span class="tooltip vocab">transmissão<span class="tooltiptext">transmission</span></span> posterior. Neste momento, nada indica que venha a <span class="tooltip verb">ocorrer<span class="tooltiptext">to occur/happen<br>Infinitive: ocorrer</span></span> um <span class="tooltip vocab">surto<span class="tooltiptext">outbreak</span></span> de maior <span class="tooltip vocab">dimensão<span class="tooltiptext">scale/size</span></span>&quot;, disse, durante uma conferência de imprensa conjunta com o primeiro-ministro espanhol, Pedro Sánchez.
-Tedros Adhanom Ghebreyesus <span class="tooltip verb">salientou<span class="tooltiptext">highlighted/emphasized<br>Infinitive: salientar</span></span> que &quot;era de esperar que houvesse mais casos, porque […] o primeiro caso <span class="tooltip verb">surgiu<span class="tooltiptext">emerged/appeared<br>Infinitive: surgir</span></span> a 6 de abril e, até que se <span class="tooltip verb">confirmou<span class="tooltiptext">confirmed<br>Infinitive: confirmar</span></span> que o paciente era <span class="tooltip vocab">contagioso<span class="tooltiptext">contagious</span></span>, por volta de 24 ou 25 de abril, houve muita <span class="tooltip vocab">interação<span class="tooltiptext">interaction</span></span> entre os passageiros&quot; do MV Hondius.
-&quot;Como sabem, o período de <span class="tooltip vocab">incubação<span class="tooltiptext">incubation</span></span> é de seis a oito semanas. Devido à <span class="tooltip vocab">interação<span class="tooltiptext">interaction</span></span>, enquanto ainda estavam no navio, mesmo tendo <span class="tooltip verb">tomado<span class="tooltiptext">taken<br>Infinitive: tomar</span></span> algumas <span class="tooltip vocab">medidas<span class="tooltiptext">measures</span></span> <span class="tooltip vocab">preventivas<span class="tooltiptext">preventive</span></span>... é de esperar que <span class="tooltip verb">surjam<span class="tooltiptext">emerge/appear<br>Infinitive: surgir</span></span> mais casos&quot;, complementou.
-E <span class="tooltip verb">reforçou<span class="tooltiptext">reinforced/stressed<br>Infinitive: reforçar</span></span>: &quot;Não há <span class="tooltip vocab">indícios<span class="tooltiptext">evidence/signs</span></span> de que estejamos perante o início de um <span class="tooltip vocab">surto<span class="tooltiptext">outbreak</span></span> de maior <span class="tooltip vocab">magnitude<span class="tooltiptext">magnitude/scale</span></span>. Mas, claro, a situação pode mudar e, dado o longo período de <span class="tooltip vocab">incubação<span class="tooltiptext">incubation</span></span> do vírus, é possível que vejamos mais casos nas próximas semanas.&quot;
-O diretor-geral da OMS <span class="tooltip verb">fixou<span class="tooltiptext">set/established<br>Infinitive: fixar</span></span> também o dia 10 de maio como o início do período de quarentena para o hantavírus, que se <span class="tooltip verb">prolongará<span class="tooltiptext">will extend/last<br>Infinitive: prolongar</span></span> até 21 de junho.
-&quot;A <span class="tooltip vocab">recomendação<span class="tooltiptext">recommendation</span></span> que fazemos é que haja uma <span class="tooltip vocab">supervisão<span class="tooltiptext">supervision</span></span> rigorosa em casa ou numa <span class="tooltip vocab">instalação<span class="tooltiptext">facility</span></span> de quarentena durante 42 dias, a partir de 10 de maio, o que nos <span class="tooltip verb">leva<span class="tooltiptext">takes/leads to<br>Infinitive: levar</span></span> a 21 de junho&quot;, disse.
-Apesar de &quot;esperar&quot; que os países <span class="tooltip verb">sigam<span class="tooltiptext">follow<br>Infinitive: seguir</span></span> &quot;os conselhos e as recomendações&quot; do organismo, que &quot;<span class="tooltip verb">dispõe<span class="tooltiptext">has/possesses<br>Infinitive: dispor</span></span> de <span class="tooltip vocab">diretrizes<span class="tooltiptext">guidelines</span></span> claras&quot;, o responsável <span class="tooltip verb">recordou<span class="tooltiptext">recalled/reminded<br>Infinitive: recordar</span></span> &quot;a questão da <span class="tooltip vocab">soberania<span class="tooltiptext">sovereignty</span></span> nacional&quot;: &quot;Não podemos <span class="tooltip verb">obrigar<span class="tooltiptext">to force<br>Infinitive: obrigar</span></span> os países a <span class="tooltip verb">aplicar<span class="tooltiptext">to apply<br>Infinitive: aplicar</span></span> os nossos protocolos. Só podemos <span class="tooltip verb">aconselhar<span class="tooltiptext">to advise<br>Infinitive: aconselhar</span></span> e <span class="tooltip verb">recomendar<span class="tooltiptext">to recommend<br>Infinitive: recomendar</span></span>.&quot;
-Tedros Adhanom Ghebreyesus indicou, no entanto, que &quot;qualquer pessoa que <span class="tooltip verb">apresente<span class="tooltiptext">shows/presents<br>Infinitive: apresentar</span></span> <span class="tooltip vocab">sintomas<span class="tooltiptext">symptoms</span></span> terá de ser <span class="tooltip verb">isolada<span class="tooltiptext">isolated<br>Infinitive: isolar</span></span> e <span class="tooltip verb">tratada<span class="tooltiptext">treated<br>Infinitive: tratar</span></span> imediatamente&quot;. Nessa linha, <span class="tooltip verb">sublinhou<span class="tooltiptext">underlined/stressed<br>Infinitive: sublinhar</span></span> que &quot;o trabalho ainda não <span class="tooltip verb">terminou<span class="tooltiptext">finished/ended<br>Infinitive: terminar</span></span>&quot;, apesar de a operação de repatriação dos passageiros do Hondius ter sido dada como concluída.
-O diretor-geral da OMS deu ainda conta de que todos os passageiros que <span class="tooltip verb">desembarcaram<span class="tooltiptext">disembarked<br>Infinitive: desembarcar</span></span> do MV Hondius foram <span class="tooltip verb">localizados<span class="tooltiptext">located<br>Infinitive: localizar</span></span>, inclusive aqueles que <span class="tooltip verb">deixaram<span class="tooltiptext">left<br>Infinitive: deixar</span></span> o navio antes da operação nas Canárias.
-&quot;Pelo que sabemos, creio que os passageiros que <span class="tooltip verb">desembarcaram<span class="tooltiptext">disembarked<br>Infinitive: desembarcar</span></span> anteriormente já foram <span class="tooltip verb">localizados<span class="tooltiptext">located<br>Infinitive: localizar</span></span>. Creio que há um num local muito <span class="tooltip vocab">remoto<span class="tooltiptext">remote</span></span>, e o Reino Unido <span class="tooltip verb">conseguiu<span class="tooltiptext">managed/succeeded<br>Infinitive: conseguir</span></span> localizá-lo através de uma série de procedimentos bastante complexos, estando a sua situação a ser <span class="tooltip verb">acompanhada<span class="tooltiptext">monitored/accompanied<br>Infinitive: acompanhar</span></span> de perto&quot;, disse, referindo-se a um britânico que foi encontrado na ilha de Tristão da Cunha.
-O responsável <span class="tooltip verb">esclareceu<span class="tooltiptext">clarified/explained<br>Infinitive: esclarecer</span></span> também ter <span class="tooltip vocab">pedido<span class="tooltiptext">request</span></span> <span class="tooltip vocab">ajuda<span class="tooltiptext">help</span></span> a Espanha, a cuja liderança <span class="tooltip verb">agradeceu<span class="tooltiptext">thanked<br>Infinitive: agradecer</span></span>, porque a situação &quot;<span class="tooltip verb">excedia<span class="tooltiptext">exceeded<br>Infinitive: exceder</span></span>&quot; a capacidade de Cabo Verde.
-&quot;O mundo não precisa de mais <span class="tooltip vocab">egoísmo<span class="tooltiptext">selfishness</span></span>, nem de mais medo&quot;
-O primeiro-ministro espanhol, por seu turno, <span class="tooltip verb">considerou<span class="tooltiptext">considered<br>Infinitive: considerar</span></span> que a operação de desembarque dos passageiros do MV Hondius &quot;foi um <span class="tooltip vocab">sucesso<span class="tooltiptext">success</span></span>&quot;, mas <span class="tooltip verb">garantiu<span class="tooltiptext">assured/guaranteed<br>Infinitive: garantir</span></span> que &quot;não vamos <span class="tooltip verb">baixar<span class="tooltiptext">to lower<br>Infinitive: baixar</span></span> a <span class="tooltip vocab">guarda<span class="tooltiptext">guard</span></span>&quot;.
-&quot;Continuaremos muito <span class="tooltip vocab">atentos<span class="tooltiptext">attentive</span></span> à <span class="tooltip vocab">evolução<span class="tooltiptext">progress/evolution</span></span> dos passageiros que se encontram neste momento hospitalizados no Gómez Ulla&quot;, disse.
-Sánchez <span class="tooltip verb">realçou<span class="tooltiptext">highlighted/stressed<br>Infinitive: realçar</span></span> também que &quot;o mundo não precisa de mais <span class="tooltip vocab">egoísmo<span class="tooltiptext">selfishness</span></span>, nem de mais medo&quot;, tendo defendido a decisão de <span class="tooltip verb">acolher<span class="tooltiptext">to welcome/host<br>Infinitive: acolher</span></span> o navio afetado pelo <span class="tooltip vocab">surto<span class="tooltiptext">outbreak</span></span> de hantavírus nas Canárias.
-&quot;Nos últimos dias, <span class="tooltip verb">ouvimos<span class="tooltiptext">heard<br>Infinitive: ouvir</span></span> muitos responsáveis públicos <span class="tooltip verb">questionarem-se<span class="tooltiptext">to question themselves<br>Infinitive: questionar-se</span></span> sobre o motivo pelo qual o país africano de Cabo Verde não acolhia a operação. [...] Mas para nós era claro que essa não era a questão, que a verdadeira questão era outra. Porque não ajudaríamos quem precisa, se temos os meios para o fazer?&quot;, <span class="tooltip verb">lançou<span class="tooltiptext">stated/launched<br>Infinitive: lançar</span></span>.
-O chefe do Governo <span class="tooltip verb">frisou<span class="tooltiptext">stressed/emphasized<br>Infinitive: frisar</span></span> ainda que a operação mostrou &quot;ao mundo que Espanha é um país <span class="tooltip verb">empenhado<span class="tooltiptext">committed<br>Infinitive: empenhar</span></span> na saúde e no <span class="tooltip vocab">multilateralismo<span class="tooltiptext">multilateralism</span></span>, um país que também <span class="tooltip vocab">ajuda<span class="tooltiptext">help</span></span> os outros sempre que pode e quando é necessário&quot;.
-&quot;É o nosso dever moral para com as 150 famílias de turistas e trabalhadores que estavam a passar pelo pior momento das suas vidas&quot;, disse.
-Recorde-se que, até ao momento, três pessoas morreram na sequência de um <span class="tooltip vocab">surto<span class="tooltiptext">outbreak</span></span> de hantavírus que <span class="tooltip verb">assolou<span class="tooltiptext">struck/afflicted<br>Infinitive: assolar</span></span> o MV Hondius, que viajava desde a Argentina, pelo Atlântico Sul, e <span class="tooltip verb">suscitou<span class="tooltiptext">triggered/caused<br>Infinitive: suscitar</span></span> um <span class="tooltip vocab">alerta<span class="tooltiptext">alert</span></span> sanitário internacional, no passado fim de semana.
-O hantavírus <span class="tooltip verb">transmite-se<span class="tooltiptext">is transmitted<br>Infinitive: transmitir-se</span></span> geralmente a partir de <span class="tooltip vocab">roedores<span class="tooltiptext">rodents</span></span> <span class="tooltip verb">infetados<span class="tooltiptext">infected<br>Infinitive: infetar</span></span>. A <span class="tooltip vocab">variante<span class="tooltiptext">variant/strain</span></span> <span class="tooltip verb">detetada<span class="tooltiptext">detected<br>Infinitive: detetar</span></span> no <span class="tooltip vocab">paquete<span class="tooltiptext">cruise ship (dated term)</span></span>, o hantavírus Andes, é rara e pode transmitir-se de pessoa para pessoa. Os <span class="tooltip vocab">sintomas<span class="tooltiptext">symptoms</span></span> da infeção são, inicialmente, <span class="tooltip vocab">semelhantes<span class="tooltiptext">similar</span></span> aos da gripe, nomeadamente tosse, <span class="tooltip vocab">fadiga<span class="tooltiptext">fatigue</span></span> ou dores de cabeça e musculares. Dependendo da <span class="tooltip vocab">estirpe<span class="tooltiptext">strain</span></span>, pode <span class="tooltip verb">provocar<span class="tooltiptext">to cause/provoke<br>Infinitive: provocar</span></span> uma infeção <span class="tooltip vocab">pulmonar<span class="tooltiptext">pulmonary/lung-related</span></span> ou <span class="tooltip vocab">renal<span class="tooltiptext">renal/kidney-related</span></span>.</p>
+    <div class="content pt-content">
+      <p><span class="pt-sentence" data-id="1">O <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> comercial <span class="tooltip verb">atualizado<span class="tooltiptext">updated<br>Infinitive: atualizar</span></span> entre a UE e o México será <span class="tooltip verb">assinado<span class="tooltiptext">signed<br>Infinitive: assinar</span></span> a 22 de maio na Cidade do México, na presença da presidente da Comissão Europeia, Ursula von der Leyen, na <span class="tooltip vocab">cimeira<span class="tooltiptext">summit</span></span> <span class="tooltip vocab">bilateral<span class="tooltiptext">bilateral</span></span> de alto nível em mais de uma década.</span> <span class="pt-sentence" data-id="2">É muito importante <span class="tooltip verb">avançar<span class="tooltiptext">to advance<br>Infinitive: avançar</span></span> com a <span class="tooltip vocab">revisão<span class="tooltiptext">revision</span></span> do <span class="tooltip vocab">tratado<span class="tooltiptext">treaty</span></span> com os Estados Unidos e o Canadá; é fundamental, mas também estamos a <span class="tooltip verb">abrir<span class="tooltiptext">to open<br>Infinitive: abrir</span></span> outras <span class="tooltip vocab">vias<span class="tooltiptext">avenues/paths</span></span>.</span> <span class="pt-sentence" data-id="3">Estamos a <span class="tooltip verb">abrir<span class="tooltiptext">to open<br>Infinitive: abrir</span></span> novos horizontes (...) porque também precisamos de proteger a nossa economia.</span> <span class="pt-sentence" data-id="4">Segundo Claudia Sheinbaum, a <span class="tooltip vocab">atualização<span class="tooltiptext">update</span></span> do <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> com a UE vai <span class="tooltip verb">atrair<span class="tooltiptext">to attract<br>Infinitive: atrair</span></span> mais <span class="tooltip vocab">investimento<span class="tooltiptext">investment</span></span> estrangeiro para o México e aumentar a <span class="tooltip vocab">comercialização<span class="tooltiptext">commercialization</span></span> dos produtos do país latino-americano na Europa.</span> <span class="pt-sentence" data-id="5">As <span class="tooltip vocab">negociações<span class="tooltiptext">negotiations</span></span> para um <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> revisto começaram em maio de 2016, e um <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> de princípio sobre aspetos comerciais foi <span class="tooltip verb">alcançado<span class="tooltiptext">reached<br>Infinitive: alcançar</span></span> em 2018, mas nunca <span class="tooltip verb">ratificado<span class="tooltiptext">ratified<br>Infinitive: ratificar</span></span>.</span> <span class="pt-sentence" data-id="6">O <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> revisto inclui novas áreas como o comércio digital, o <span class="tooltip vocab">apoio<span class="tooltiptext">support</span></span> às pequenas e médias empresas (PME) e o acesso <span class="tooltip vocab">preferencial<span class="tooltiptext">preferential</span></span> para os produtos <span class="tooltip vocab">agroalimentares<span class="tooltiptext">agro-food</span></span> mexicanos no mercado europeu.</span> <span class="pt-sentence" data-id="7">Sheinbaum <span class="tooltip verb">salientou<span class="tooltiptext">highlighted<br>Infinitive: salientar</span></span> que o <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> <span class="tooltip verb">modernizado<span class="tooltiptext">modernized<br>Infinitive: modernizar</span></span> demonstra segurança para o <span class="tooltip vocab">investimento<span class="tooltiptext">investment</span></span> estrangeiro.</span> <span class="pt-sentence" data-id="8">É um passo muito positivo e demonstra bem a segurança que existe em relação ao país.</span> <span class="pt-sentence" data-id="9">A <span class="tooltip vocab">atualização<span class="tooltiptext">update</span></span> do <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> com a UE <span class="tooltip verb">coincide<span class="tooltiptext">coincides<br>Infinitive: coincidir</span></span> com as <span class="tooltip vocab">negociações<span class="tooltiptext">negotiations</span></span> entre o México, os Estados Unidos e o Canadá para rever o seu <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> de comércio livre, o USMCA, no meio das políticas <span class="tooltip vocab">tarifárias<span class="tooltiptext">tariff (adj.)</span></span> <span class="tooltip vocab">agressivas<span class="tooltiptext">aggressive</span></span> do Presidente norte-americano, Donald Trump.</span> <span class="pt-sentence" data-id="10">O México é o segundo maior <span class="tooltip vocab">parceiro<span class="tooltiptext">partner</span></span> comercial da UE na América Latina, a seguir ao Brasil.</span> <span class="pt-sentence" data-id="11">Em 2025, a União Europeia foi o segundo maior mercado para as <span class="tooltip vocab">exportações<span class="tooltiptext">exports</span></span> mexicanas, com 27,7 mil milhões de dólares (23,6 mil milhões de euros), enquanto as <span class="tooltip vocab">importações<span class="tooltiptext">imports</span></span> totalizaram quase 67 mil milhões de dólares (57 mil milhões de euros).</span></p>
     </div>
   </article>
   <button id="nextBtn">Next News ⏭️</button>
@@ -333,13 +352,17 @@ O hantavírus <span class="tooltip verb">transmite-se<span class="tooltiptext">i
     <span class="legend">
       <span class="dot" style="background:#ef4444;"></span> Conjugated verb
     </span>
+    &nbsp;&middot;&nbsp;
+    <span class="legend">
+      <span class="dot" style="background:#dbeafe;"></span> Sentence sync
+    </span>
     <br><br>
     Generated automatically by PT-PT Daily News
   </footer>
 </div>
 <script>
 (function() {
-  // Toggle translation for each article
+  // Toggle translation visibility per article
   document.querySelectorAll('.btn-translation').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var targetId = btn.getAttribute('data-target');
@@ -347,12 +370,34 @@ O hantavírus <span class="tooltip verb">transmite-se<span class="tooltiptext">i
       if (box) {
         if (box.style.display === 'none') {
           box.style.display = 'block';
-          btn.textContent = 'Hide English Translation';
+          btn.textContent = 'Hide Translation';
         } else {
           box.style.display = 'none';
-          btn.textContent = 'Show English Translation';
+          btn.textContent = 'Show Translation';
         }
       }
+    });
+  });
+
+  // Sentence hover sync across PT / EN / CN
+  function highlightGroup(id) {
+    document.querySelectorAll('[data-id="' + id + '"]').forEach(function(el) {
+      el.classList.add('sentence-highlight');
+    });
+  }
+  function unhighlightGroup(id) {
+    document.querySelectorAll('[data-id="' + id + '"]').forEach(function(el) {
+      el.classList.remove('sentence-highlight');
+    });
+  }
+  document.querySelectorAll('.pt-sentence, .en-sentence, .cn-sentence').forEach(function(span) {
+    span.addEventListener('mouseenter', function() {
+      var id = this.getAttribute('data-id');
+      if (id) highlightGroup(id);
+    });
+    span.addEventListener('mouseleave', function() {
+      var id = this.getAttribute('data-id');
+      if (id) unhighlightGroup(id);
     });
   });
 
@@ -360,23 +405,17 @@ O hantavírus <span class="tooltip verb">transmite-se<span class="tooltiptext">i
   var current = 1;
   var total = 3;
   var nextBtn = document.getElementById('nextBtn');
-
   if (nextBtn) {
     nextBtn.addEventListener('click', function() {
       if (current >= total) return;
-
-      var currentArticle = document.getElementById('article-' + current);
-      if (currentArticle) {
-        currentArticle.style.display = 'none';
-      }
-
+      var cur = document.getElementById('article-' + current);
+      if (cur) cur.style.display = 'none';
       current++;
-      var nextArticle = document.getElementById('article-' + current);
-      if (nextArticle) {
-        nextArticle.style.display = 'block';
+      var nxt = document.getElementById('article-' + current);
+      if (nxt) {
+        nxt.style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-
       if (current >= total) {
         nextBtn.textContent = 'No more news today';
         nextBtn.disabled = true;
