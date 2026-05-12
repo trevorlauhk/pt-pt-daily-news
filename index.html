@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hantavírus: DGS publica orientações para casos suspeitos e descarta medidas preventivas — PT-PT Daily News</title>
+<title>Líder do Hezbollah recusa desarmamento e promete &quot;inferno&quot; a Israel — PT-PT Daily News</title>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -66,9 +66,44 @@
   }
   audio {
     width: 100%;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     border-radius: 10px;
     outline: none;
+  }
+  .btn-translation {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .btn-translation:hover {
+    background: #1d4ed8;
+  }
+  .btn-translation:active {
+    transform: scale(0.98);
+  }
+  .translation-box {
+    background: #eff6ff;
+    border-left: 4px solid var(--accent);
+    padding: 20px 24px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 28px;
+    color: #1e3a8a;
+    line-height: 1.7;
+    font-size: 1rem;
+  }
+  .translation-box p {
+    margin: 0 0 0.9em;
+    text-align: justify;
+  }
+  .translation-box p:last-child {
+    margin-bottom: 0;
   }
   .content p {
     margin: 0 0 1.35em;
@@ -164,14 +199,25 @@
 <body>
 <div class="container">
   <article class="card">
-    <h1>Hantavírus: DGS publica orientações para casos suspeitos e descarta medidas preventivas</h1>
-    <div class="meta">Público · PT-PT Daily News</div>
+    <h1>Líder do Hezbollah recusa desarmamento e promete &quot;inferno&quot; a Israel</h1>
+    <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
     <audio controls>
       <source src="news.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
+    <button id="toggleTranslation" class="btn-translation">Hide English Translation</button>
+    <div id="translationBox" class="translation-box" style="display: block;">
+      <p>Hezbollah leader refuses disarmament and promises &#x27;hell&#x27; for Israel</p>
+<p>&#x27;The weapons and the Resistance are nobody’s business outside Lebanon (...) it is an internal Lebanese matter that is not part of negotiations with the enemy,&#x27; Qassem said in a message addressed to Hezbollah fighters. 
+&#x27;We will not surrender and will turn the battle into hell for Israel,&#x27; he added, quoted by the news agency France-Presse (AFP).
+The statement comes at a time when Lebanon and Israel are set to hold a new round of negotiations in Washington next Thursday.
+Read also: LIVE UPDATES: Will Trump resume attacks?; Defence ministers meet</p>
+    </div>
     <div class="content">
-      <p>Doentes serão <span class="tooltip verb">encaminhados<span class="tooltiptext">directed/referred<br>Infinitive: encaminhar</span></span> pelo INEM para os hospitais de <span class="tooltip vocab">referência<span class="tooltiptext">reference (here: designated)</span></span>: a <span class="tooltip vocab">Unidade Local de Saúde<span class="tooltiptext">Local Health Unit (specific healthcare institution type)</span></span> São José, em Lisboa, e de São João, no Porto.</p>
+      <p>&quot;As armas e a Resistência não <span class="tooltip verb">dizem respeito<span class="tooltiptext">concern<br>Infinitive: dizer respeito</span></span> a ninguém fora do Líbano (...) é uma questão interna libanesa que não faz parte das <span class="tooltip vocab">negociações<span class="tooltiptext">negotiations</span></span> com o inimigo&quot;, disse Qassem numa mensagem <span class="tooltip verb">dirigida<span class="tooltiptext">addressed<br>Infinitive: dirigir</span></span> aos <span class="tooltip vocab">combatentes<span class="tooltiptext">fighters</span></span> do Hezbollah.
+&quot;Não nos <span class="tooltip verb">renderemos<span class="tooltiptext">surrender<br>Infinitive: render-se</span></span> e <span class="tooltip verb">transformaremos<span class="tooltiptext">will turn<br>Infinitive: transformar</span></span> a <span class="tooltip vocab">batalha<span class="tooltiptext">battle</span></span> num inferno para Israel&quot;, <span class="tooltip verb">acrescentou<span class="tooltiptext">added<br>Infinitive: acrescentar</span></span>, <span class="tooltip verb">citado<span class="tooltiptext">quoted<br>Infinitive: citar</span></span> pela <span class="tooltip vocab">agência<span class="tooltiptext">agency</span></span> de notícias France-Presse (AFP).
+A <span class="tooltip vocab">declaração<span class="tooltiptext">statement</span></span> <span class="tooltip verb">surge<span class="tooltiptext">comes<br>Infinitive: surgir</span></span> numa <span class="tooltip vocab">altura<span class="tooltiptext">time/moment</span></span> em que o Líbano e Israel <span class="tooltip verb">deverão<span class="tooltiptext">are set to<br>Infinitive: dever</span></span> <span class="tooltip verb">realizar<span class="tooltiptext">hold/carry out<br>Infinitive: realizar</span></span> uma nova <span class="tooltip vocab">ronda<span class="tooltiptext">round</span></span> de <span class="tooltip vocab">negociações<span class="tooltiptext">negotiations</span></span> em Washington, na próxima quinta-feira.
+Leia Também: AO MINUTO: Trump retomará ataques?; Ministros da Defesa reúnem-se</p>
     </div>
   </article>
   <footer>
@@ -186,5 +232,22 @@
     Generated automatically by PT-PT Daily News
   </footer>
 </div>
+<script>
+(function() {
+  var btn = document.getElementById('toggleTranslation');
+  var box = document.getElementById('translationBox');
+  if (btn && box) {
+    btn.addEventListener('click', function() {
+      if (box.style.display === 'none') {
+        box.style.display = 'block';
+        btn.textContent = 'Hide English Translation';
+      } else {
+        box.style.display = 'none';
+        btn.textContent = 'Show English Translation';
+      }
+    });
+  }
+})();
+</script>
 </body>
 </html>
