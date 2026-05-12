@@ -1,4 +1,5 @@
 feedparser
 requests
 trafilatura
+beautifulsoup4
 openai
