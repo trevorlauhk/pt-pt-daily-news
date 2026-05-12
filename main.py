@@ -2,10 +2,10 @@
 """
 PT-PT Daily News Processor
 
-Fetches the latest news from Público RSS, analyses difficult B2+ vocabulary
-and conjugated verbs via an LLM (OpenRouter), synthesises speech with
-xAI Grok TTS (European Portuguese), and renders an interactive HTML page
-with highlighted tooltips.
+Fetches the latest news from Público RSS, scrapes the full article body,
+analyses difficult B2+ vocabulary and conjugated verbs via an LLM (OpenRouter),
+synthesises speech with xAI Grok TTS (European Portuguese), and renders an
+interactive HTML page with highlighted tooltips and a hidden English translation.
 
 Required env vars:
     OPENROUTER_API_KEY
@@ -19,11 +19,11 @@ import json
 import os
 import re
 import sys
-from html.parser import HTMLParser
 from pathlib import Path
 
 import feedparser
 import requests
+from bs4 import BeautifulSoup
 from openai import OpenAI
 
 # ---------------------------------------------------------------------------
@@ -31,89 +31,186 @@ from openai import OpenAI
 # ---------------------------------------------------------------------------
 
 
-class _HTMLStripper(HTMLParser):
-    """Simple std-lib HTML-to-text converter."""
-
-    def __init__(self) -> None:
-        super().__init__(convert_charrefs=True)
-        self._chunks: list[str] = []
-
-    def handle_data(self, data: str) -> None:
-        self._chunks.append(data)
-
-    def get_text(self) -> str:
-        return "".join(self._chunks)
-
-
-def _strip_html(raw: str) -> str:
-    parser = _HTMLStripper()
-    parser.feed(raw)
-    return parser.get_text()
-
-
-def _fetch_full_text_fallback(article_url: str) -> str | None:
-    """Try to extract a fuller article body from the original web page."""
-    try:
-        resp = requests.get(
-            article_url,
-            timeout=20,
-            headers={"User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"},
-        )
-        resp.raise_for_status()
-        text = resp.text
-
-        # Strategy A: Open Graph description
-        og_match = re.search(
-            r'<meta[^>]+property=["\']og:description["\'][^>]+content=["\'](.*?)["\']',
-            text,
-            re.IGNORECASE | re.DOTALL,
-        )
-        if og_match:
-            return html.unescape(og_match.group(1)).strip()
-
-        # Strategy B: collect <p> paragraphs
-        paragraphs = re.findall(r'<p[^>]*>(.*?)</p>', text, re.IGNORECASE | re.DOTALL)
-        if paragraphs:
-            return " ".join(_strip_html(p) for p in paragraphs).strip()
-    except Exception as exc:
-        print(f"    Warning: fallback fetch failed: {exc}")
-    return None
-
-
-def fetch_latest_news() -> tuple[str, str, str]:
+def fetch_article_url_from_rss() -> tuple[str, str]:
+    """Fetch the latest article title and URL from the Público RSS feed."""
     rss_url = "https://feeds.feedburner.com/PublicoRSS"
-    print(f"[1/4] Fetching RSS feed: {rss_url}")
+    print(f"[1/5] Fetching RSS feed: {rss_url}")
 
     feed = feedparser.parse(rss_url)
     if not feed.entries:
         raise RuntimeError("RSS feed contains no entries.")
 
     entry = feed.entries[0]
-    title = _strip_html(entry.get("title", "Sem título")).strip()
+    title = entry.get("title", "Sem título").strip()
+    article_url = entry.get("link", "")
+    if not article_url:
+        raise RuntimeError("Latest RSS entry has no URL.")
 
-    # Prefer content array, then summary, then description
-    raw_body = ""
-    if "content" in entry:
-        raw_body = entry.content[0].value  # type: ignore[index]
-    elif "summary" in entry:
-        raw_body = entry.summary
-    else:
-        raw_body = entry.get("description", "")
-
-    body = _strip_html(raw_body).strip()
-    body = re.sub(r"\s+", " ", body)
-
-    # If the RSS snippet is too short, try to retrieve the full article
-    if len(body) < 300 and entry.get("link"):
-        print("    RSS snippet is short; attempting full-article fallback…")
-        fallback = _fetch_full_text_fallback(entry.link)
-        if fallback:
-            body = re.sub(r"\s+", " ", fallback).strip()
-
-    link = entry.get("link", "")
     print(f"    Title: {title[:80]}{'…' if len(title) > 80 else ''}")
-    print(f"    Body length: {len(body)} chars")
-    return title, body, link
+    print(f"    URL: {article_url}")
+    return title, article_url
+
+
+def _clean_paragraphs(paragraphs: list[str]) -> str:
+    """Filter out ads, menus, share buttons, and other noise."""
+    noise_keywords = (
+        "partilhar",
+        "share",
+        "assine já",
+        "assinaturas",
+        "os leitores são a força",
+        "sugerir correcção",
+        "tópicos",
+        "ler mais",
+        "ler mais notícias",
+        "comentários",
+        "publicidade",
+        "cookies",
+        "newsletter",
+        "notificações",
+        "entrar",
+        "pesquisar",
+        "edição impressa",
+        "termos e condições",
+        "política de privacidade",
+        "gerir cookies",
+        "enviar por email",
+        "copiar link",
+        "guardar",
+        "comentar",
+        "alertas",
+        "torne-se perito",
+        "fale connosco",
+        "ajuda",
+        "sobre",
+        "serviços",
+        "siga-nos",
+        "aplicações",
+        "loja",
+        "meteorologia",
+        "jogos",
+        "projectos",
+        "assinantes",
+        "informação legal",
+        "principais fluxos financeiros",
+        "estrutura accionista",
+        "email marketing",
+        "receba notificações",
+        "o seu navegador não suporta",
+        "saltar para o conteúdo",
+        "saltar para a navegação",
+        "exclusivo",
+        "gostaria de ouvir",
+        "ouça este artigo",
+        "foto",
+    )
+
+    cleaned: list[str] = []
+    for p in paragraphs:
+        if len(p) < 20:
+            continue
+        p_lower = p.lower()
+        if any(kw in p_lower for kw in noise_keywords):
+            continue
+        cleaned.append(p)
+
+    # Deduplicate while preserving order
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for p in cleaned:
+        if p not in seen:
+            seen.add(p)
+            deduped.append(p)
+
+    return "\n\n".join(deduped)
+
+
+def fetch_full_article(article_url: str) -> str:
+    """Scrape the full article body from the Público web page."""
+    print(f"[2/5] Scraping full article from: {article_url}")
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"}
+    resp = requests.get(article_url, headers=headers, timeout=20)
+    resp.raise_for_status()
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+
+    # Remove non-content structural tags
+    for tag_name in ("script", "style", "nav", "header", "footer", "aside", "form", "iframe"):
+        for tag in soup.find_all(tag_name):
+            tag.decompose()
+
+    # Remove common ad / menu / promo containers by class/id heuristics
+    noise_selector = re.compile(
+        r"nav|menu|header|footer|sidebar|ad-|advertisement|share|social|comments|related|"
+        r"topics|tags|author-meta|meta-data|subscription|newsletter|cookie|notification|"
+        r"paywall|promo|banner|toolbar|utility|breadcrumb|megafone|playlist|gallery|widget",
+        re.IGNORECASE,
+    )
+    for tag in soup.find_all(["div", "section"]):
+        tag_id = tag.get("id", "")
+        tag_class = " ".join(tag.get("class", []))
+        if noise_selector.search(tag_id) or noise_selector.search(tag_class):
+            tag.decompose()
+
+    # Strategy A: <article> tag
+    article_tag = soup.find("article")
+    if article_tag:
+        paragraphs = [p.get_text(strip=True) for p in article_tag.find_all("p")]
+        if paragraphs:
+            body = _clean_paragraphs(paragraphs)
+            if body:
+                print(f"    Extracted {len(body)} chars (strategy: <article>)")
+                return body
+
+    # Strategy B: common content containers
+    content_selectors = [
+        "div.content",
+        "div.main-content",
+        "div.article-body",
+        "div.story-body",
+        "div.texto",
+        "div#content",
+        "div#main-content",
+        "div#article-body",
+        "section.content",
+        "section.main-content",
+    ]
+    for selector in content_selectors:
+        container = soup.select_one(selector)
+        if container:
+            paragraphs = [p.get_text(strip=True) for p in container.find_all("p")]
+            if paragraphs:
+                body = _clean_paragraphs(paragraphs)
+                if body:
+                    print(f"    Extracted {len(body)} chars (strategy: {selector})")
+                    return body
+
+    # Strategy C: find the div/section with the most paragraph text
+    best_container = None
+    best_score = 0
+    for container in soup.find_all(["div", "section"]):
+        ps = container.find_all("p", recursive=False)
+        if not ps:
+            ps = container.find_all("p")
+        text_len = sum(len(p.get_text(strip=True)) for p in ps)
+        p_count = len(ps)
+        score = text_len + (p_count * 50)
+        if score > best_score and text_len > 200:
+            best_score = score
+            best_container = container
+
+    if best_container:
+        paragraphs = [p.get_text(strip=True) for p in best_container.find_all("p")]
+        body = _clean_paragraphs(paragraphs)
+        if body:
+            print(f"    Extracted {len(body)} chars (strategy: largest text block)")
+            return body
+
+    # Fallback: all remaining paragraphs
+    paragraphs = [p.get_text(strip=True) for p in soup.find_all("p")]
+    body = _clean_paragraphs(paragraphs)
+    print(f"    Extracted {len(body)} chars (strategy: fallback)")
+    return body
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +218,7 @@ def fetch_latest_news() -> tuple[str, str, str]:
 # ---------------------------------------------------------------------------
 
 
-def analyse_text(title: str, body: str) -> list[dict]:
+def analyse_text(title: str, body: str) -> tuple[str, list[dict]]:
     api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
         raise RuntimeError("Environment variable OPENROUTER_API_KEY is not set.")
@@ -136,16 +233,18 @@ def analyse_text(title: str, body: str) -> list[dict]:
     )
 
     system_prompt = (
-        "You are a Portuguese-language teaching assistant specialised in European Portuguese.\n"
-        "Given a news article, identify:\n"
-        "1. Difficult words at CEFR B2 level or above.\n"
-        "2. Conjugated verbs (return their infinitive form).\n\n"
-        "Return ONLY a strictly valid JSON array with NO markdown formatting.\n"
-        "Each object must contain exactly these keys:\n"
-        '  "word"       – the word exactly as it appears in the text\n'
-        '  "infinitive" – the infinitive form if category is "verb", otherwise null\n'
-        '  "en"         – concise English translation or explanation\n'
-        '  "category"   – either "vocab" or "verb"\n\n'
+        "You are a Portuguese-language teaching assistant specialised in European Portuguese.\n\n"
+        "Given a news article (title + body), perform two tasks:\n"
+        "1. Produce a high-quality, natural English translation of the entire article.\n"
+        "2. Identify CEFR B2+ difficult words and conjugated verbs from the original Portuguese text.\n\n"
+        "Return ONLY a strictly valid JSON object with NO markdown formatting.\n"
+        "The JSON object must contain exactly two top-level keys:\n"
+        '  "translation": a string containing the full English translation.\n'
+        '  "analysis": an array of objects, each with:\n'
+        '    "word"       – the word exactly as it appears in the Portuguese text\n'
+        '    "infinitive" – the infinitive form if category is "verb", otherwise null\n'
+        '    "en"         – concise English translation or explanation\n'
+        '    "category"   – either "vocab" or "verb"\n\n'
         "Rules:\n"
         "- Do NOT wrap the response in markdown code blocks.\n"
         "- Use double quotes for all strings.\n"
@@ -154,7 +253,7 @@ def analyse_text(title: str, body: str) -> list[dict]:
 
     user_prompt = f"Title: {title}\n\nContent:\n{body}\n"
 
-    print("[2/4] Analysing text with LLM (OpenRouter)…")
+    print("[3/5] Analysing text with LLM (OpenRouter)…")
     response = client.chat.completions.create(
         model="mistralai/mistral-large-2407",
         messages=[
@@ -166,24 +265,29 @@ def analyse_text(title: str, body: str) -> list[dict]:
 
     raw = response.choices[0].message.content.strip()
 
-    # Clean up accidental markdown fences
+    # Strip accidental markdown fences
     raw = re.sub(r"^```json\s*", "", raw, flags=re.IGNORECASE)
     raw = re.sub(r"^```\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
 
     try:
-        items = json.loads(raw)
+        data = json.loads(raw)
     except json.JSONDecodeError as exc:
         print("    Raw LLM output:")
         print(raw)
         raise RuntimeError(f"Could not parse LLM JSON output: {exc}")
 
-    if not isinstance(items, list):
-        raise RuntimeError("LLM did not return a JSON array.")
+    if not isinstance(data, dict):
+        raise RuntimeError("LLM did not return a JSON object.")
 
-    # Normalise keys
+    translation = str(data.get("translation", "")).strip()
+    analysis = data.get("analysis", [])
+    if not isinstance(analysis, list):
+        raise RuntimeError('LLM response "analysis" is not a JSON array.')
+
+    # Normalise analysis items
     normalised = []
-    for it in items:
+    for it in analysis:
         if not isinstance(it, dict):
             continue
         normalised.append(
@@ -195,9 +299,13 @@ def analyse_text(title: str, body: str) -> list[dict]:
             }
         )
 
-    print(f"    Identified {len(normalised)} items ({sum(1 for i in normalised if i['category']=='verb')} verbs, "
-          f"{sum(1 for i in normalised if i['category']=='vocab')} vocab).")
-    return normalised
+    print(f"    Translation length: {len(translation)} chars")
+    print(
+        f"    Analysis: {len(normalised)} items "
+        f"({sum(1 for i in normalised if i['category'] == 'verb')} verbs, "
+        f"{sum(1 for i in normalised if i['category'] == 'vocab')} vocab)."
+    )
+    return translation, normalised
 
 
 # ---------------------------------------------------------------------------
@@ -210,13 +318,13 @@ def synthesise_speech(title: str, body: str, out_path: Path) -> None:
     if not api_key:
         raise RuntimeError("Environment variable XAI_API_KEY is not set.")
 
+    # Send ONLY the original Portuguese text — never the English translation
     text = f"{title}. {body}"
-    # xAI TTS supports up to ~15 k characters per request
     if len(text) > 14_000:
         text = text[:14_000]
         print("    Note: text truncated to 14,000 characters for TTS.")
 
-    print("[3/4] Synthesising speech via xAI Grok TTS (voice=ara, lang=pt-PT)…")
+    print("[4/5] Synthesising speech via xAI Grok TTS (voice=ara, lang=pt-PT)…")
     resp = requests.post(
         "https://api.x.ai/v1/tts",
         headers={
@@ -225,8 +333,8 @@ def synthesise_speech(title: str, body: str, out_path: Path) -> None:
         },
         json={
             "text": text,
-            "voice_id": "ara",          # clear and professional — good for news
-            "language": "pt-PT",        # European Portuguese
+            "voice_id": "ara",
+            "language": "pt-PT",
         },
         timeout=120,
     )
@@ -242,7 +350,7 @@ def synthesise_speech(title: str, body: str, out_path: Path) -> None:
 
 
 def _build_highlighted_html(text: str, items: list[dict]) -> str:
-    # Build lookup keyed by lowercase word
+    """Escape text then highlight known words with tooltip spans."""
     lookup: dict[str, dict] = {}
     for it in items:
         w = it.get("word", "")
@@ -250,11 +358,9 @@ def _build_highlighted_html(text: str, items: list[dict]) -> str:
             lookup[w.lower()] = it
 
     if not lookup:
-        # Nothing to highlight — just escape and paragraphise
         escaped = html.escape(text)
         return "".join(f"<p>{p}</p>" for p in escaped.split("\n\n") if p.strip())
 
-    # Sort by length descending so longer phrases match first
     words = sorted(lookup.keys(), key=len, reverse=True)
     pattern = re.compile(
         r"\b(" + "|".join(re.escape(w) for w in words) + r")\b",
@@ -281,23 +387,28 @@ def _build_highlighted_html(text: str, items: list[dict]) -> str:
             f"</span>"
         )
 
-    # Escape raw text first so we don't accidentally inject HTML,
-    # then substitute recognised words with tooltip markup.
     escaped_text = html.escape(text)
     highlighted = pattern.sub(_replace, escaped_text)
-
-    # Turn double-newline into paragraphs
     paragraphs = highlighted.split("\n\n")
     return "\n".join(f"<p>{p.strip()}</p>" for p in paragraphs if p.strip())
 
 
 def generate_html_page(
-    title: str, body: str, items: list[dict], out_path: Path
+    title: str,
+    body: str,
+    translation: str,
+    items: list[dict],
+    out_path: Path,
 ) -> None:
-    print("[4/4] Generating HTML page…")
+    print("[5/5] Generating HTML page…")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     highlighted = _build_highlighted_html(body, items)
+    translation_html = "\n".join(
+        f"<p>{html.escape(p.strip())}</p>"
+        for p in translation.split("\n\n")
+        if p.strip()
+    )
 
     page = f"""<!DOCTYPE html>
 <html lang="pt-PT">
@@ -367,9 +478,44 @@ def generate_html_page(
   }}
   audio {{
     width: 100%;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
     border-radius: 10px;
     outline: none;
+  }}
+  .btn-translation {{
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }}
+  .btn-translation:hover {{
+    background: #1d4ed8;
+  }}
+  .btn-translation:active {{
+    transform: scale(0.98);
+  }}
+  .translation-box {{
+    background: #eff6ff;
+    border-left: 4px solid var(--accent);
+    padding: 20px 24px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 28px;
+    color: #1e3a8a;
+    line-height: 1.7;
+    font-size: 1rem;
+  }}
+  .translation-box p {{
+    margin: 0 0 0.9em;
+    text-align: justify;
+  }}
+  .translation-box p:last-child {{
+    margin-bottom: 0;
   }}
   .content p {{
     margin: 0 0 1.35em;
@@ -471,6 +617,10 @@ def generate_html_page(
       <source src="news.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
+    <button id="toggleTranslation" class="btn-translation">Show English Translation</button>
+    <div id="translationBox" class="translation-box" style="display: none;">
+      {translation_html}
+    </div>
     <div class="content">
       {highlighted}
     </div>
@@ -487,6 +637,23 @@ def generate_html_page(
     Generated automatically by PT-PT Daily News
   </footer>
 </div>
+<script>
+(function() {{
+  var btn = document.getElementById('toggleTranslation');
+  var box = document.getElementById('translationBox');
+  if (btn && box) {{
+    btn.addEventListener('click', function() {{
+      if (box.style.display === 'none') {{
+        box.style.display = 'block';
+        btn.textContent = 'Hide English Translation';
+      }} else {{
+        box.style.display = 'none';
+        btn.textContent = 'Show English Translation';
+      }}
+    }});
+  }}
+}})();
+</script>
 </body>
 </html>
 """
@@ -502,8 +669,9 @@ def generate_html_page(
 
 def main() -> int:
     try:
-        title, body, link = fetch_latest_news()
-        items = analyse_text(title, body)
+        title, article_url = fetch_article_url_from_rss()
+        body = fetch_full_article(article_url)
+        translation, items = analyse_text(title, body)
 
         public_html = Path("public_html")
         public_html.mkdir(parents=True, exist_ok=True)
@@ -512,7 +680,7 @@ def main() -> int:
         synthesise_speech(title, body, mp3_path)
 
         html_path = public_html / "index.html"
-        generate_html_page(title, body, items, html_path)
+        generate_html_page(title, body, translation, items, html_path)
 
         print("\n✅  Done! Open public_html/index.html in your browser.")
         return 0
