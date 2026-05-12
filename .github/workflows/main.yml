@@ -1,0 +1,36 @@
+name: Daily PT-PT News Builder
+
+on:
+  schedule:
+    - cron: '0 23 * * *' # 每日 UTC 23:00 (香港時間朝早 7 點) 自動行
+  workflow_dispatch: # 呢個超級重要！容許你喺 GitHub 網頁手動撳掣 Run！
+
+permissions:
+  contents: write # 畀權限工人將網頁 upload 上 GitHub Pages
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Packages
+        run: pip install -r requirements.txt
+
+      - name: 🧠 Run Vibe Coding Script
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+        run: python main.py
+
+      - name: 🚀 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public_html # 叫工人將呢個 folder 嘅嘢推上網
