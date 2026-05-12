@@ -1,5 +1,4 @@
 feedparser
 requests
-beautifulsoup4
+trafilatura
 openai
-jinja2

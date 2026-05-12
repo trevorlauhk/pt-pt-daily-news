@@ -2,10 +2,12 @@
 """
 PT-PT Daily News Processor
 
-Fetches the latest news from Público RSS, scrapes the full article body,
-analyses difficult B2+ vocabulary and conjugated verbs via an LLM (OpenRouter),
-synthesises speech with xAI Grok TTS (European Portuguese), and renders an
-interactive HTML page with highlighted tooltips and a hidden English translation.
+Fetches the latest news from Notícias ao Minuto RSS (mundo section),
+extracts full article text with trafilatura, analyses difficult B2+
+vocabulary and conjugated verbs via an LLM (OpenRouter), synthesises
+speech with xAI Grok TTS (European Portuguese), and renders an
+interactive HTML page with highlighted tooltips and a toggleable English
+translation.
 
 Required env vars:
     OPENROUTER_API_KEY
@@ -23,7 +25,7 @@ from pathlib import Path
 
 import feedparser
 import requests
-from bs4 import BeautifulSoup
+import trafilatura
 from openai import OpenAI
 
 # ---------------------------------------------------------------------------
@@ -31,186 +33,74 @@ from openai import OpenAI
 # ---------------------------------------------------------------------------
 
 
-def fetch_article_url_from_rss() -> tuple[str, str]:
-    """Fetch the latest article title and URL from the Público RSS feed."""
-    rss_url = "https://feeds.feedburner.com/PublicoRSS"
-    print(f"[1/5] Fetching RSS feed: {rss_url}")
-
+def fetch_news() -> tuple[str, str, str]:
+    """
+    Iterate over the Notícias ao Minuto 'mundo' RSS feed, skip entries
+    whose titles contain video/audio/gallery keywords, and return the first
+    article whose extracted body is longer than 300 characters.
+    Falls back to the longest body found if none exceed 300 chars.
+    """
+    rss_url = "https://www.noticiasaominuto.com/rss/mundo"
+    print(f"[1/4] Fetching RSS feed: {rss_url}")
     feed = feedparser.parse(rss_url)
+
     if not feed.entries:
         raise RuntimeError("RSS feed contains no entries.")
 
-    entry = feed.entries[0]
-    title = entry.get("title", "Sem título").strip()
-    article_url = entry.get("link", "")
-    if not article_url:
-        raise RuntimeError("Latest RSS entry has no URL.")
+    skip_keywords = ("vídeo", "video", "áudio", "galeria", "em atualização")
 
-    print(f"    Title: {title[:80]}{'…' if len(title) > 80 else ''}")
-    print(f"    URL: {article_url}")
-    return title, article_url
+    best_title = ""
+    best_url = ""
+    best_body = ""
+    best_len = 0
 
-
-def _clean_paragraphs(paragraphs: list[str]) -> str:
-    """Filter out ads, menus, share buttons, and other noise."""
-    noise_keywords = (
-        "partilhar",
-        "share",
-        "assine já",
-        "assinaturas",
-        "os leitores são a força",
-        "sugerir correcção",
-        "tópicos",
-        "ler mais",
-        "ler mais notícias",
-        "comentários",
-        "publicidade",
-        "cookies",
-        "newsletter",
-        "notificações",
-        "entrar",
-        "pesquisar",
-        "edição impressa",
-        "termos e condições",
-        "política de privacidade",
-        "gerir cookies",
-        "enviar por email",
-        "copiar link",
-        "guardar",
-        "comentar",
-        "alertas",
-        "torne-se perito",
-        "fale connosco",
-        "ajuda",
-        "sobre",
-        "serviços",
-        "siga-nos",
-        "aplicações",
-        "loja",
-        "meteorologia",
-        "jogos",
-        "projectos",
-        "assinantes",
-        "informação legal",
-        "principais fluxos financeiros",
-        "estrutura accionista",
-        "email marketing",
-        "receba notificações",
-        "o seu navegador não suporta",
-        "saltar para o conteúdo",
-        "saltar para a navegação",
-        "exclusivo",
-        "gostaria de ouvir",
-        "ouça este artigo",
-        "foto",
-    )
-
-    cleaned: list[str] = []
-    for p in paragraphs:
-        if len(p) < 20:
+    for entry in feed.entries:
+        title = entry.get("title", "").strip()
+        if any(kw in title.lower() for kw in skip_keywords):
             continue
-        p_lower = p.lower()
-        if any(kw in p_lower for kw in noise_keywords):
+
+        article_url = entry.get("link", "")
+        if not article_url:
             continue
-        cleaned.append(p)
 
-    # Deduplicate while preserving order
-    seen: set[str] = set()
-    deduped: list[str] = []
-    for p in cleaned:
-        if p not in seen:
-            seen.add(p)
-            deduped.append(p)
+        try:
+            print(
+                f"    Trying: {title[:60]}{'…' if len(title) > 60 else ''}"
+            )
+            resp = requests.get(
+                article_url,
+                headers={"User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            extracted = trafilatura.extract(resp.text)
+            if not extracted:
+                continue
 
-    return "\n\n".join(deduped)
+            body = extracted.strip()
+            body_len = len(body)
 
+            if body_len > 300:
+                print(f"    Selected (length {body_len} chars)")
+                return title, article_url, body
 
-def fetch_full_article(article_url: str) -> str:
-    """Scrape the full article body from the Público web page."""
-    print(f"[2/5] Scraping full article from: {article_url}")
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"}
-    resp = requests.get(article_url, headers=headers, timeout=20)
-    resp.raise_for_status()
+            if body_len > best_len:
+                best_title, best_url, best_body, best_len = (
+                    title,
+                    article_url,
+                    body,
+                    body_len,
+                )
 
-    soup = BeautifulSoup(resp.text, "html.parser")
+        except Exception as exc:
+            print(f"    Warning: failed to fetch {article_url}: {exc}")
+            continue
 
-    # Remove non-content structural tags
-    for tag_name in ("script", "style", "nav", "header", "footer", "aside", "form", "iframe"):
-        for tag in soup.find_all(tag_name):
-            tag.decompose()
+    if best_body:
+        print(f"    Fallback selected (length {best_len} chars)")
+        return best_title, best_url, best_body
 
-    # Remove common ad / menu / promo containers by class/id heuristics
-    noise_selector = re.compile(
-        r"nav|menu|header|footer|sidebar|ad-|advertisement|share|social|comments|related|"
-        r"topics|tags|author-meta|meta-data|subscription|newsletter|cookie|notification|"
-        r"paywall|promo|banner|toolbar|utility|breadcrumb|megafone|playlist|gallery|widget",
-        re.IGNORECASE,
-    )
-    for tag in soup.find_all(["div", "section"]):
-        tag_id = tag.get("id", "")
-        tag_class = " ".join(tag.get("class", []))
-        if noise_selector.search(tag_id) or noise_selector.search(tag_class):
-            tag.decompose()
-
-    # Strategy A: <article> tag
-    article_tag = soup.find("article")
-    if article_tag:
-        paragraphs = [p.get_text(strip=True) for p in article_tag.find_all("p")]
-        if paragraphs:
-            body = _clean_paragraphs(paragraphs)
-            if body:
-                print(f"    Extracted {len(body)} chars (strategy: <article>)")
-                return body
-
-    # Strategy B: common content containers
-    content_selectors = [
-        "div.content",
-        "div.main-content",
-        "div.article-body",
-        "div.story-body",
-        "div.texto",
-        "div#content",
-        "div#main-content",
-        "div#article-body",
-        "section.content",
-        "section.main-content",
-    ]
-    for selector in content_selectors:
-        container = soup.select_one(selector)
-        if container:
-            paragraphs = [p.get_text(strip=True) for p in container.find_all("p")]
-            if paragraphs:
-                body = _clean_paragraphs(paragraphs)
-                if body:
-                    print(f"    Extracted {len(body)} chars (strategy: {selector})")
-                    return body
-
-    # Strategy C: find the div/section with the most paragraph text
-    best_container = None
-    best_score = 0
-    for container in soup.find_all(["div", "section"]):
-        ps = container.find_all("p", recursive=False)
-        if not ps:
-            ps = container.find_all("p")
-        text_len = sum(len(p.get_text(strip=True)) for p in ps)
-        p_count = len(ps)
-        score = text_len + (p_count * 50)
-        if score > best_score and text_len > 200:
-            best_score = score
-            best_container = container
-
-    if best_container:
-        paragraphs = [p.get_text(strip=True) for p in best_container.find_all("p")]
-        body = _clean_paragraphs(paragraphs)
-        if body:
-            print(f"    Extracted {len(body)} chars (strategy: largest text block)")
-            return body
-
-    # Fallback: all remaining paragraphs
-    paragraphs = [p.get_text(strip=True) for p in soup.find_all("p")]
-    body = _clean_paragraphs(paragraphs)
-    print(f"    Extracted {len(body)} chars (strategy: fallback)")
-    return body
+    raise RuntimeError("No suitable article found in RSS feed.")
 
 
 # ---------------------------------------------------------------------------
@@ -221,7 +111,9 @@ def fetch_full_article(article_url: str) -> str:
 def analyse_text(title: str, body: str) -> tuple[str, list[dict]]:
     api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
-        raise RuntimeError("Environment variable OPENROUTER_API_KEY is not set.")
+        raise RuntimeError(
+            "Environment variable OPENROUTER_API_KEY is not set."
+        )
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
@@ -233,10 +125,13 @@ def analyse_text(title: str, body: str) -> tuple[str, list[dict]]:
     )
 
     system_prompt = (
-        "You are a Portuguese-language teaching assistant specialised in European Portuguese.\n\n"
+        "You are a Portuguese-language teaching assistant specialised in "
+        "European Portuguese.\n\n"
         "Given a news article (title + body), perform two tasks:\n"
-        "1. Produce a high-quality, natural English translation of the entire article.\n"
-        "2. Identify CEFR B2+ difficult words and conjugated verbs from the original Portuguese text.\n\n"
+        "1. Produce a high-quality, natural English translation of the "
+        "entire article.\n"
+        "2. Identify CEFR B2/C1/C2 difficult words and conjugated verbs "
+        "from the original Portuguese text.\n\n"
         "Return ONLY a strictly valid JSON object with NO markdown formatting.\n"
         "The JSON object must contain exactly two top-level keys:\n"
         '  "translation": a string containing the full English translation.\n'
@@ -253,7 +148,7 @@ def analyse_text(title: str, body: str) -> tuple[str, list[dict]]:
 
     user_prompt = f"Title: {title}\n\nContent:\n{body}\n"
 
-    print("[3/5] Analysing text with LLM (OpenRouter)…")
+    print("[2/4] Analysing text with LLM (OpenRouter)…")
     response = client.chat.completions.create(
         model="mistralai/mistral-large-2407",
         messages=[
@@ -286,16 +181,20 @@ def analyse_text(title: str, body: str) -> tuple[str, list[dict]]:
         raise RuntimeError('LLM response "analysis" is not a JSON array.')
 
     # Normalise analysis items
-    normalised = []
+    normalised: list[dict] = []
     for it in analysis:
         if not isinstance(it, dict):
             continue
         normalised.append(
             {
                 "word": str(it.get("word", "")),
-                "infinitive": it.get("infinitive") if it.get("infinitive") else None,
+                "infinitive": (
+                    it.get("infinitive") if it.get("infinitive") else None
+                ),
                 "en": str(it.get("en", "")),
-                "category": "verb" if it.get("category") == "verb" else "vocab",
+                "category": (
+                    "verb" if it.get("category") == "verb" else "vocab"
+                ),
             }
         )
 
@@ -324,7 +223,7 @@ def synthesise_speech(title: str, body: str, out_path: Path) -> None:
         text = text[:14_000]
         print("    Note: text truncated to 14,000 characters for TTS.")
 
-    print("[4/5] Synthesising speech via xAI Grok TTS (voice=ara, lang=pt-PT)…")
+    print("[3/4] Synthesising speech via xAI Grok TTS (voice=ara, lang=pt-PT)…")
     resp = requests.post(
         "https://api.x.ai/v1/tts",
         headers={
@@ -359,7 +258,9 @@ def _build_highlighted_html(text: str, items: list[dict]) -> str:
 
     if not lookup:
         escaped = html.escape(text)
-        return "".join(f"<p>{p}</p>" for p in escaped.split("\n\n") if p.strip())
+        return "".join(
+            f"<p>{p}</p>" for p in escaped.split("\n\n") if p.strip()
+        )
 
     words = sorted(lookup.keys(), key=len, reverse=True)
     pattern = re.compile(
@@ -390,7 +291,9 @@ def _build_highlighted_html(text: str, items: list[dict]) -> str:
     escaped_text = html.escape(text)
     highlighted = pattern.sub(_replace, escaped_text)
     paragraphs = highlighted.split("\n\n")
-    return "\n".join(f"<p>{p.strip()}</p>" for p in paragraphs if p.strip())
+    return "\n".join(
+        f"<p>{p.strip()}</p>" for p in paragraphs if p.strip()
+    )
 
 
 def generate_html_page(
@@ -400,7 +303,7 @@ def generate_html_page(
     items: list[dict],
     out_path: Path,
 ) -> None:
-    print("[5/5] Generating HTML page…")
+    print("[4/4] Generating HTML page…")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     highlighted = _build_highlighted_html(body, items)
@@ -612,13 +515,13 @@ def generate_html_page(
 <div class="container">
   <article class="card">
     <h1>{html.escape(title)}</h1>
-    <div class="meta">Público · PT-PT Daily News</div>
+    <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
     <audio controls>
       <source src="news.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
-    <button id="toggleTranslation" class="btn-translation">Show English Translation</button>
-    <div id="translationBox" class="translation-box" style="display: none;">
+    <button id="toggleTranslation" class="btn-translation">Hide English Translation</button>
+    <div id="translationBox" class="translation-box" style="display: block;">
       {translation_html}
     </div>
     <div class="content">
@@ -669,8 +572,7 @@ def generate_html_page(
 
 def main() -> int:
     try:
-        title, article_url = fetch_article_url_from_rss()
-        body = fetch_full_article(article_url)
+        title, article_url, body = fetch_news()
         translation, items = analyse_text(title, body)
 
         public_html = Path("public_html")
