@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-PT-PT Daily News Processor
+PT-PT Daily News Processor – Multi-Article Edition
 
 Fetches the latest news from Notícias ao Minuto RSS (mundo section),
 extracts full article text with trafilatura, analyses difficult B2+
 vocabulary and conjugated verbs via an LLM (OpenRouter), synthesises
 speech with xAI Grok TTS (European Portuguese), and renders an
 interactive HTML page with highlighted tooltips and a toggleable English
-translation.
+translation.  Supports browsing 3 articles with a "Next News" button.
 
 Required env vars:
     OPENROUTER_API_KEY
@@ -33,12 +33,11 @@ from openai import OpenAI
 # ---------------------------------------------------------------------------
 
 
-def fetch_news() -> tuple[str, str, str]:
+def fetch_articles(count: int = 3) -> list[dict]:
     """
     Iterate over the Notícias ao Minuto 'mundo' RSS feed, skip entries
-    whose titles contain video/audio/gallery keywords, and return the first
-    article whose extracted body is longer than 300 characters.
-    Falls back to the longest body found if none exceed 300 chars.
+    whose titles contain video/audio/gallery keywords, and collect up to
+    ``count`` articles whose extracted body is longer than 300 characters.
     """
     rss_url = "https://www.noticiasaominuto.com/rss/mundo"
     print(f"[1/4] Fetching RSS feed: {rss_url}")
@@ -48,13 +47,12 @@ def fetch_news() -> tuple[str, str, str]:
         raise RuntimeError("RSS feed contains no entries.")
 
     skip_keywords = ("vídeo", "video", "áudio", "galeria", "em atualização")
-
-    best_title = ""
-    best_url = ""
-    best_body = ""
-    best_len = 0
+    articles: list[dict] = []
 
     for entry in feed.entries:
+        if len(articles) >= count:
+            break
+
         title = entry.get("title", "").strip()
         if any(kw in title.lower() for kw in skip_keywords):
             continue
@@ -65,11 +63,14 @@ def fetch_news() -> tuple[str, str, str]:
 
         try:
             print(
-                f"    Trying: {title[:60]}{'…' if len(title) > 60 else ''}"
+                f"    Trying article {len(articles) + 1}: "
+                f"{title[:60]}{'…' if len(title) > 60 else ''}"
             )
             resp = requests.get(
                 article_url,
-                headers={"User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"},
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"
+                },
                 timeout=10,
             )
             resp.raise_for_status()
@@ -78,29 +79,23 @@ def fetch_news() -> tuple[str, str, str]:
                 continue
 
             body = extracted.strip()
-            body_len = len(body)
-
-            if body_len > 300:
-                print(f"    Selected (length {body_len} chars)")
-                return title, article_url, body
-
-            if body_len > best_len:
-                best_title, best_url, best_body, best_len = (
-                    title,
-                    article_url,
-                    body,
-                    body_len,
+            if len(body) > 300:
+                articles.append(
+                    {"title": title, "url": article_url, "body": body}
                 )
-
+                print(
+                    f"    ✓ Article {len(articles)} collected "
+                    f"({len(body)} chars)"
+                )
         except Exception as exc:
             print(f"    Warning: failed to fetch {article_url}: {exc}")
             continue
 
-    if best_body:
-        print(f"    Fallback selected (length {best_len} chars)")
-        return best_title, best_url, best_body
+    if not articles:
+        raise RuntimeError("No suitable articles found in RSS feed.")
 
-    raise RuntimeError("No suitable article found in RSS feed.")
+    print(f"    Collected {len(articles)} article(s).")
+    return articles
 
 
 # ---------------------------------------------------------------------------
@@ -296,29 +291,48 @@ def _build_highlighted_html(text: str, items: list[dict]) -> str:
     )
 
 
-def generate_html_page(
-    title: str,
-    body: str,
-    translation: str,
-    items: list[dict],
-    out_path: Path,
-) -> None:
+def generate_html_page(articles_data: list[dict], out_path: Path) -> None:
     print("[4/4] Generating HTML page…")
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    highlighted = _build_highlighted_html(body, items)
-    translation_html = "\n".join(
-        f"<p>{html.escape(p.strip())}</p>"
-        for p in translation.split("\n\n")
-        if p.strip()
-    )
+    article_blocks: list[str] = []
+    for idx, article in enumerate(articles_data, start=1):
+        highlighted = _build_highlighted_html(
+            article["body"], article["items"]
+        )
+        translation_html = "\n".join(
+            f"<p>{html.escape(p.strip())}</p>"
+            for p in article["translation"].split("\n\n")
+            if p.strip()
+        )
+        display = "block" if idx == 1 else "none"
+
+        block = f"""<article class="card news-article" id="article-{idx}" style="display: {display};">
+    <h1>{html.escape(article["title"])}</h1>
+    <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
+    <audio controls>
+      <source src="{article['audio']}" type="audio/mpeg">
+      O seu navegador não suporta o elemento de áudio.
+    </audio>
+    <button class="btn-translation" data-target="translationBox{idx}">Hide English Translation</button>
+    <div id="translationBox{idx}" class="translation-box" style="display: block;">
+      {translation_html}
+    </div>
+    <div class="content">
+      {highlighted}
+    </div>
+  </article>"""
+        article_blocks.append(block)
+
+    articles_html = "\n".join(article_blocks)
+    total_articles = len(articles_data)
 
     page = f"""<!DOCTYPE html>
 <html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{html.escape(title)} — PT-PT Daily News</title>
+<title>PT-PT Daily News</title>
 <style>
   :root {{
     --bg: #f4f6f8;
@@ -485,6 +499,28 @@ def generate_html_page(
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }}
+  #nextBtn {{
+    display: block;
+    width: 100%;
+    margin: 24px 0 0;
+    padding: 14px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+  }}
+  #nextBtn:hover {{
+    background: #1d4ed8;
+  }}
+  #nextBtn:disabled {{
+    background: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }}
   .legend {{
     display: inline-flex;
     align-items: center;
@@ -508,26 +544,14 @@ def generate_html_page(
     .container {{ margin: 24px auto; }}
     .card {{ padding: 24px; }}
     h1 {{ font-size: 1.5rem; }}
+    #nextBtn {{ font-size: 0.95rem; padding: 12px; }}
   }}
 </style>
 </head>
 <body>
 <div class="container">
-  <article class="card">
-    <h1>{html.escape(title)}</h1>
-    <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
-    <audio controls>
-      <source src="news.mp3" type="audio/mpeg">
-      O seu navegador não suporta o elemento de áudio.
-    </audio>
-    <button id="toggleTranslation" class="btn-translation">Hide English Translation</button>
-    <div id="translationBox" class="translation-box" style="display: block;">
-      {translation_html}
-    </div>
-    <div class="content">
-      {highlighted}
-    </div>
-  </article>
+  {articles_html}
+  <button id="nextBtn">Next News ⏭️</button>
   <footer>
     <span class="legend">
       <span class="dot" style="background:#f59e0b;"></span> Difficult vocab
@@ -542,16 +566,47 @@ def generate_html_page(
 </div>
 <script>
 (function() {{
-  var btn = document.getElementById('toggleTranslation');
-  var box = document.getElementById('translationBox');
-  if (btn && box) {{
+  // Toggle translation for each article
+  document.querySelectorAll('.btn-translation').forEach(function(btn) {{
     btn.addEventListener('click', function() {{
-      if (box.style.display === 'none') {{
-        box.style.display = 'block';
-        btn.textContent = 'Hide English Translation';
-      }} else {{
-        box.style.display = 'none';
-        btn.textContent = 'Show English Translation';
+      var targetId = btn.getAttribute('data-target');
+      var box = document.getElementById(targetId);
+      if (box) {{
+        if (box.style.display === 'none') {{
+          box.style.display = 'block';
+          btn.textContent = 'Hide English Translation';
+        }} else {{
+          box.style.display = 'none';
+          btn.textContent = 'Show English Translation';
+        }}
+      }}
+    }});
+  }});
+
+  // Next News navigation
+  var current = 1;
+  var total = {total_articles};
+  var nextBtn = document.getElementById('nextBtn');
+
+  if (nextBtn) {{
+    nextBtn.addEventListener('click', function() {{
+      if (current >= total) return;
+
+      var currentArticle = document.getElementById('article-' + current);
+      if (currentArticle) {{
+        currentArticle.style.display = 'none';
+      }}
+
+      current++;
+      var nextArticle = document.getElementById('article-' + current);
+      if (nextArticle) {{
+        nextArticle.style.display = 'block';
+        window.scrollTo({{ top: 0, behavior: 'smooth' }});
+      }}
+
+      if (current >= total) {{
+        nextBtn.textContent = 'No more news today';
+        nextBtn.disabled = true;
       }}
     }});
   }}
@@ -572,17 +627,24 @@ def generate_html_page(
 
 def main() -> int:
     try:
-        title, article_url, body = fetch_news()
-        translation, items = analyse_text(title, body)
+        articles = fetch_articles(count=3)
 
         public_html = Path("public_html")
         public_html.mkdir(parents=True, exist_ok=True)
 
-        mp3_path = public_html / "news.mp3"
-        synthesise_speech(title, body, mp3_path)
+        for i, article in enumerate(articles, start=1):
+            print(f"\n--- Processing article {i}/{len(articles)} ---")
+            translation, items = analyse_text(article["title"], article["body"])
+            article["translation"] = translation
+            article["items"] = items
+
+            audio_filename = f"news_{i}.mp3"
+            mp3_path = public_html / audio_filename
+            synthesise_speech(article["title"], article["body"], mp3_path)
+            article["audio"] = audio_filename
 
         html_path = public_html / "index.html"
-        generate_html_page(title, body, translation, items, html_path)
+        generate_html_page(articles, html_path)
 
         print("\n✅  Done! Open public_html/index.html in your browser.")
         return 0

@@ -1,0 +1,32 @@
+Step 1
+terminal in this directory
+
+git add .
+git commit -m "Vibe Code Upgrade: Trafilatura + Visible Translation"
+git push
+
+=== full
+# 1. 確保所有檔案都加晒入準備名單
+git add .
+
+# 2. 乾乾淨淨做一次 Commit
+git commit -m "First commit"
+
+# 3. 確保而家個分支名叫 main
+git branch -M main
+
+# 4. 更新你條正確嘅 .git 網址
+git remote set-url origin https://github.com/trevorlauhk/pt-pt-daily-news.git
+
+# 5. 正式推上雲端！
+git push -u origin main
+
+use token generated on github > security> classic
+
+----
+Step 2
+Github > Action > "pt-pt" worker > Run Workflow again
+
+
+link:
+https://trevorlauhk.github.io/pt-pt-daily-news/
