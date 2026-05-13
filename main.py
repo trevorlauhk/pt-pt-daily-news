@@ -17,7 +17,7 @@ a morning email digest.
 
 Required env vars:
     OPENROUTER_API_KEY
-    XAI_API_KEY
+    AZURE_TTS_KEY
     SMTP_SERVER          (optional, for email)
     EMAIL_USER           (optional, for email)
     EMAIL_PASS           (optional, for email)
@@ -156,7 +156,9 @@ def _call_llm(system_prompt: str, user_prompt: str) -> dict:
     raw = re.sub(r"\s*```$", "", raw)
 
     try:
-        data = json.loads(raw)
+        # strict=False allows control characters inside JSON strings,
+        # which LLMs occasionally embed (e.g. raw newlines inside a value).
+        data = json.loads(raw, strict=False)
     except json.JSONDecodeError as exc:
         print("    Raw LLM output:")
         print(raw)
