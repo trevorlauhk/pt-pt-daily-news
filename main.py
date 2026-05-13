@@ -294,38 +294,43 @@ def _normalise_article(data: dict, level: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# 3. Text-to-Speech (xAI Grok TTS)
+# 3. Text-to-Speech (Microsoft Azure TTS)
 # ---------------------------------------------------------------------------
 
-
-def synthesise_speech(text: str, out_path: Path) -> None:
-    api_key = os.environ.get("XAI_API_KEY")
+def synthesise_speech(text: str, out_path: Path, voice_name: str) -> None:
+    api_key = os.environ.get("AZURE_TTS_KEY")
     if not api_key:
-        raise RuntimeError("Environment variable XAI_API_KEY is not set.")
+        raise RuntimeError("Environment variable AZURE_TTS_KEY is not set.")
 
-    if len(text) > 14_000:
-        text = text[:14_000]
-        print("    Note: text truncated to 14,000 characters for TTS.")
+    # 你的 Azure Region 係 eastasia
+    region = "eastasia"
+    url = f"https://{region}.tts.speech.microsoft.com/cognitiveservices/v1"
 
-    print(f"    Synthesising speech via xAI Grok TTS (voice=ara, lang=pt-PT)…")
-    resp = requests.post(
-        "https://api.x.ai/v1/tts",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "text": text,
-            "voice_id": "ara",
-            "language": "pt-PT",
-        },
-        timeout=120,
-    )
-    resp.raise_for_status()
+    headers = {
+        "Ocp-Apim-Subscription-Key": api_key,
+        "Content-Type": "application/ssml+xml",
+        "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3",
+        "User-Agent": "PTPTDailyNews"
+    }
+
+    # Azure 需要用 SSML (Speech Synthesis Markup Language) 來包住啲字
+    # html.escape 可以防止啲 <> 符號整瓜個 XML
+    escaped_text = html.escape(text)
+    
+    ssml = f"""<speak version='1.0' xml:lang='pt-PT'>
+        <voice xml:lang='pt-PT' name='{voice_name}'>
+            {escaped_text}
+        </voice>
+    </speak>"""
+
+    print(f"    Synthesising speech via Azure TTS ({voice_name})…")
+    resp = requests.post(url, headers=headers, data=ssml.encode("utf-8"), timeout=120)
+    
+    if resp.status_code != 200:
+        raise RuntimeError(f"Azure TTS Error {resp.status_code}: {resp.text}")
 
     out_path.write_bytes(resp.content)
     print(f"    Saved audio: {out_path} ({len(resp.content):,} bytes).")
-
 
 # ---------------------------------------------------------------------------
 # 4. HTML Generation
@@ -982,10 +987,13 @@ def main() -> int:
 
         # TTS for both
         print("\n--- Synthesising speech ---")
-        synthesise_speech(a2_article["story_pt"], public_html / "news_a2.mp3")
+        
+        # A2 用溫柔女聲 Fernanda
+        synthesise_speech(a2_article["story_pt"], public_html / "news_a2.mp3", "pt-PT-FernandaNeural")
         a2_article["audio"] = "news_a2.mp3"
 
-        synthesise_speech(b1b2_article["story_pt"], public_html / "news_b1b2.mp3")
+        # B1-B2 用沉穩男聲 Duarte
+        synthesise_speech(b1b2_article["story_pt"], public_html / "news_b1b2.mp3", "pt-PT-DuarteNeural")
         b1b2_article["audio"] = "news_b1b2.mp3"
 
         # Generate HTML
