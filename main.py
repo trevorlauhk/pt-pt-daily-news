@@ -6,9 +6,14 @@ Generates two daily Portuguese learning articles via AI:
   1. A2 Level (CIPLE) – simple tenses, ~200 words
   2. B1-B2 Level (DEPLE/DIPLE) – subjunctive, complex clauses, ~250-300 words
 
+Each article includes an "oreo_tips" field written by "Oreo Sir" (our dog
+mascot) in Traditional Chinese, sprinkled with humour, 🍪 emojis, and
+some dog-speak.
+
 Analyses vocabulary with OpenRouter (Mistral), synthesises speech with
 xAI Grok TTS, renders an interactive dual-tab HTML page with
-sentence-sync hover & tooltips, and sends a morning email digest.
+sentence-sync hover, tooltips, and the Oreo Sir tips block, then sends
+a morning email digest.
 
 Required env vars:
     OPENROUTER_API_KEY
@@ -186,7 +191,8 @@ def generate_a2_story(topic: str) -> dict:
         '    "word" – the word exactly as it appears\n'
         '    "infinitive" – infinitive if it is a conjugated verb, otherwise null\n'
         '    "en" – concise English explanation\n'
-        '    "category" – "vocab" or "verb"\n\n'
+        '    "category" – "vocab" or "verb"\n'
+        '  "oreo_tips": (string) Write as "Oreo Sir", a friendly, humorous dog mascot teaching Portuguese to Hong Kong students. Use Traditional Chinese (繁體中文). Include at least 2 dog phrases/puns (汪星人用語) and 1-2 cookie 🍪 emojis. Write a short, warm grammar or vocabulary tip specifically for this article (around 80-120 characters). Keep it fun and encouraging, like a dog cheering you on!\n\n'
         "Rules:\n"
         "- Do NOT wrap the response in markdown code blocks.\n"
         "- Use double quotes for all strings.\n"
@@ -224,7 +230,8 @@ def generate_b1b2_story(topic: str) -> dict:
         '    "word" – the word exactly as it appears\n'
         '    "infinitive" – infinitive if it is a conjugated verb, otherwise null\n'
         '    "en" – concise English explanation\n'
-        '    "category" – "vocab" or "verb"\n\n'
+        '    "category" – "vocab" or "verb"\n'
+        '  "oreo_tips": (string) Write as "Oreo Sir", a friendly, humorous dog mascot teaching Portuguese to Hong Kong students. Use Traditional Chinese (繁體中文). Include at least 2 dog phrases/puns (汪星人用語) and 1-2 cookie 🍪 emojis. Write a short, warm grammar or vocabulary tip specifically for this article (around 100-140 characters). The tip should be slightly more advanced (B1-B2 level), maybe mentioning conjuntivo or complex connectors. Keep it fun and encouraging, like a wise dog cheering you on!\n\n'
         "Rules:\n"
         "- Do NOT wrap the response in markdown code blocks.\n"
         "- Use double quotes for all strings.\n"
@@ -275,12 +282,14 @@ def _normalise_article(data: dict, level: str) -> dict:
         "translation_cn": str(data.get("translation_cn", "")).strip(),
         "alignment": alignment,
         "analysis": normalised_analysis,
+        "oreo_tips": str(data.get("oreo_tips", "")).strip(),
     }
 
     print(f"    Title: {article['title'][:70]}{'…' if len(article['title']) > 70 else ''}")
     print(f"    PT length: {len(article['story_pt'])} chars")
     print(f"    Alignment: {len(alignment)} sentences")
     print(f"    Analysis: {len(normalised_analysis)} items")
+    print(f"    Oreo tips: {len(article['oreo_tips'])} chars")
     return article
 
 
@@ -410,10 +419,17 @@ def _render_article_card(article: dict, article_id: str, display: str) -> str:
         else '<span class="level-badge b1b2">B1-B2 (DEPLE/DIPLE)</span>'
     )
 
+    oreo_tips = article.get("oreo_tips", "")
+    oreo_html = html.escape(oreo_tips).replace("\n", "<br>")
+
     return f"""<article class="card news-article" id="{article_id}" style="display: {display};">
     <div class="article-header">
       <h1>{html.escape(article["title"])}</h1>
       {level_badge}
+    </div>
+    <div class="oreo-tips-block">
+      <div class="oreo-tips-header">🐶 Oreo Sir 小 Tips</div>
+      <div class="oreo-tips-content">{oreo_html}</div>
     </div>
     <audio controls>
       <source src="{article['audio']}" type="audio/mpeg">
@@ -471,6 +487,9 @@ def generate_html_page(articles: list[dict], out_path: Path) -> None:
     --verb-fg: #991b1b;
     --verb-border: #ef4444;
     --sync-bg: #dbeafe;
+    --oreo-bg: #f0f9ff;
+    --oreo-border: #38bdf8;
+    --oreo-text: #0369a1;
     --radius: 14px;
     --shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
   }}
@@ -578,9 +597,30 @@ def generate_html_page(articles: list[dict], out_path: Path) -> None:
     background: var(--b1b2-bg);
     color: var(--b1b2-color);
   }}
+  /* Oreo Sir Tips */
+  .oreo-tips-block {{
+    background: var(--oreo-bg);
+    border-left: 4px solid var(--oreo-border);
+    border-radius: 0 10px 10px 0;
+    padding: 18px 22px;
+    margin: 20px 0 24px;
+    color: var(--oreo-text);
+  }}
+  .oreo-tips-header {{
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }}
+  .oreo-tips-content {{
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }}
   audio {{
     width: 100%;
-    margin: 20px 0;
+    margin: 0 0 20px;
     border-radius: 10px;
     outline: none;
   }}
