@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PT-PT Daily News – Learn European Portuguese</title>
+<title>PT-PT Daily News – Dual-Engine Learning</title>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -12,8 +12,10 @@
     --muted: #6b7280;
     --accent: #2563eb;
     --accent-light: #eff6ff;
-    --oreo-bg: #fff7ed;
-    --oreo-border: #fb923c;
+    --a2-color: #059669;
+    --a2-bg: #d1fae5;
+    --b1b2-color: #7c3aed;
+    --b1b2-bg: #ede9fe;
     --vocab-bg: #fef3c7;
     --vocab-fg: #92400e;
     --vocab-border: #f59e0b;
@@ -35,69 +37,102 @@
   }
   .container {
     max-width: 860px;
-    margin: 40px auto;
-    padding: 0 20px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
   }
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin: 24px 0;
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    padding: 6px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .tab-btn:hover { background: #f3f4f6; }
+  .tab-btn.active-a2 {
+    background: var(--a2-bg);
+    color: var(--a2-color);
+    box-shadow: 0 2px 8px rgba(5,150,105,0.15);
+  }
+  .tab-btn.active-b1b2 {
+    background: var(--b1b2-bg);
+    color: var(--b1b2-color);
+    box-shadow: 0 2px 8px rgba(124,58,237,0.15);
+  }
+  .tab-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+  .tab-btn.active-a2 .tab-badge {
+    background: var(--a2-color);
+    color: #fff;
+  }
+  .tab-btn.active-b1b2 .tab-badge {
+    background: var(--b1b2-color);
+    color: #fff;
+  }
+  /* Cards */
   .card {
     background: var(--surface);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 36px;
-    margin-bottom: 24px;
   }
-  .article-img {
-    width: 100%;
-    max-height: 360px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 20px;
+  .article-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 4px;
   }
   h1 {
-    font-size: 1.75rem;
+    font-size: 1.7rem;
     font-weight: 700;
-    margin: 0 0 10px;
+    margin: 0;
     line-height: 1.3;
     letter-spacing: -0.02em;
+    flex: 1;
   }
-  .meta {
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .meta::before {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-  }
-  .oreo-block {
-    background: var(--oreo-bg);
-    border-left: 4px solid var(--oreo-border);
-    border-radius: 0 10px 10px 0;
-    padding: 18px 22px;
-    margin-bottom: 24px;
-    color: #7c2d12;
-  }
-  .oreo-header {
+  .level-badge {
+    font-size: 0.78rem;
     font-weight: 700;
-    font-size: 1rem;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    margin-top: 6px;
   }
-  .oreo-content {
-    font-size: 0.95rem;
-    line-height: 1.7;
+  .level-badge.a2 {
+    background: var(--a2-bg);
+    color: var(--a2-color);
+  }
+  .level-badge.b1b2 {
+    background: var(--b1b2-bg);
+    color: var(--b1b2-color);
   }
   audio {
     width: 100%;
-    margin-bottom: 20px;
+    margin: 20px 0;
     border-radius: 10px;
     outline: none;
   }
@@ -215,26 +250,6 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
-  #nextBtn {
-    display: block;
-    width: 100%;
-    margin: 24px 0 0;
-    padding: 14px;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #fff;
-    background: var(--accent);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.2s, opacity 0.2s;
-  }
-  #nextBtn:hover { background: #1d4ed8; }
-  #nextBtn:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
   .legend {
     display: inline-flex;
     align-items: center;
@@ -255,95 +270,75 @@
     font-size: 0.85rem;
   }
   @media (max-width: 600px) {
-    .container { margin: 20px auto; }
+    .container { padding: 0 16px 32px; }
     .card { padding: 22px; }
-    h1 { font-size: 1.45rem; }
-    #nextBtn { font-size: 0.95rem; padding: 12px; }
-    .article-img { max-height: 240px; }
+    h1 { font-size: 1.35rem; }
+    .tab-btn { font-size: 0.9rem; padding: 12px; }
+    .article-header { flex-direction: column; }
+    .level-badge { margin-top: 0; }
   }
 </style>
 </head>
 <body>
 <div class="container">
-  <article class="card news-article" id="article-1" style="display: block;">
-    <h1>Diretor da Agência do Medicamento renuncia após semanas de pressão de Trump</h1>
-    <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
-    <div class="oreo-block">
-      <div class="oreo-header">👨‍🏫 我 Oreo Sir 話齋 (Cantonese Teacher)</div>
-      <div class="oreo-content">呢單新聞講緊美國藥品管理局局長馬卡里因為唔想批准水果味電子煙（cigarros eletrónicos com sabor a frutas）而辭職㗎！特朗普之前仲施壓佢快啲批准，但馬卡里最後因為良心問題決定走人。同學仔要留意兩個詞語：「renunciar」即係「辭職」，同「autorizar」即係「批准」。記住呢啲動詞嘅變位，好似「renuncio」（我辭職）、「autorizo」（我批准），咁樣講起嚟就更自然喇！</div>
+  <div class="tab-bar">
+    <button id="tab-a2" class="tab-btn active-a2" onclick="switchTab('A2')">
+      🇵🇹 A2 Level <span class="tab-badge">CIPLE</span>
+    </button>
+    <button id="tab-b1b2" class="tab-btn" onclick="switchTab('B1-B2')">
+      🇵🇹 B1-B2 Level <span class="tab-badge">DEPLE/DIPLE</span>
+    </button>
+  </div>
+
+  <article class="card news-article" id="article-a2" style="display: block;">
+    <div class="article-header">
+      <h1>Um Jantar Especial</h1>
+      <span class="level-badge a2">A2 (CIPLE)</span>
     </div>
     <audio controls>
-      <source src="news_1.mp3" type="audio/mpeg">
+      <source src="news_a2.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
-    <button class="btn-translation" data-target="transBox1">Hide Translation</button>
-    <div id="transBox1" class="translation-box" style="display: block;">
+    <button class="btn-translation" data-target="transBox-article-a2">Hide Translation</button>
+    <div id="transBox-article-a2" class="translation-box" style="display: block;">
       <div class="translation-col">
         <h3>English</h3>
-        <div class="sentence-content"><span class="en-sentence" data-id="1">Makary was involved in several clashes with the White House over different issues, such as electronic cigarettes and abortion,</span> <span class="en-sentence" data-id="2">and the US Head of State had already shown his disappointment with the now former director for not acting quickly enough to approve those flavoured cigarettes and other nicotine products.</span> <span class="en-sentence" data-id="3">The alleged reason was to curb the rise in vaping among young people,</span> <span class="en-sentence" data-id="4">although, in the end, and after apparent pressure from Trump, Makary backtracked and authorised them.</span> <span class="en-sentence" data-id="5">In fact, and according to the US press, Makary will have resigned due to his concern over the Government&#x27;s decision to authorise these fruit-flavoured electronic cigarettes,</span> <span class="en-sentence" data-id="6">as his conscience did not allow him to approve them.</span> <span class="en-sentence" data-id="7">Although vaping was the reason that led to his resignation, the reality is that Makary&#x27;s arrival at the FDA as a reformer and with a desire to make changes earned him numerous clashes both in Washington and on Wall Street.</span> <span class="en-sentence" data-id="8">His decisions clashed with the interests of powerful American food, tobacco, and pharmaceutical industries.</span> <span class="en-sentence" data-id="9">After the resignation of the FDA director was made public – anticipated by the digital media outlet Politico – Trump told journalists that he wished Makary the best.</span> <span class="en-sentence" data-id="10">&quot;Marty is a fantastic guy, but he’s moving on and will have a good life,&quot; Trump assured before starting an official trip to China.</span> <span class="en-sentence" data-id="11">&quot;He’s a great doctor and was having some difficulties,&quot; he added.</span></div>
+        <div class="sentence-content"><span class="en-sentence" data-id="1">Last night, Pedro and Ana went out to dinner at a new restaurant in the city center.</span> <span class="en-sentence" data-id="2">They were very happy because it was Ana’s birthday.</span> <span class="en-sentence" data-id="3">When they arrived, a friendly waiter said, &quot;Good evening! A table for two?&quot;</span> <span class="en-sentence" data-id="4">Pedro answered, &quot;Yes, please.&quot;</span> <span class="en-sentence" data-id="5">Then they sat near the window, and the waiter brought the menus.</span> <span class="en-sentence" data-id="6">Ana looked at the menu and said, &quot;Everything looks delicious!&quot;</span> <span class="en-sentence" data-id="7">Pedro laughed and replied, &quot;I think I’ll order the steak with fries.&quot;</span> <span class="en-sentence" data-id="8">Ana thought for a moment and then said, &quot;I’ll order the chicken salad and a vegetable soup.&quot;</span> <span class="en-sentence" data-id="9">When the waiter returned, Pedro said, &quot;I’d like a steak with fries, please.&quot;</span> <span class="en-sentence" data-id="10">Ana said, &quot;And I’d like the chicken salad and a vegetable soup.&quot;</span> <span class="en-sentence" data-id="11">The waiter wrote everything down and asked, &quot;And to drink?&quot;</span> <span class="en-sentence" data-id="12">Pedro answered, &quot;A mineral water, please.&quot;</span> <span class="en-sentence" data-id="13">Ana said, &quot;I want a fresh orange juice.&quot;</span> <span class="en-sentence" data-id="14">After some time, the waiter brought the food. Everything was very good!</span> <span class="en-sentence" data-id="15">At the end, they asked for the bill and left a tip.</span></div>
       </div>
       <div class="translation-col">
         <h3>中文</h3>
-        <div class="sentence-content"><span class="cn-sentence" data-id="1">馬卡里因電子煙及墮胎等不同議題與白宮多次發生衝突，</span> <span class="cn-sentence" data-id="2">美國國家元首早前已對這位現已離任的局長未能迅速批准那些加味香煙及其他尼古丁產品表示失望。</span> <span class="cn-sentence" data-id="3">聲稱的原因是為了遏制年輕人吸食電子煙的趨勢，</span> <span class="cn-sentence" data-id="4">儘管最終在特朗普明顯的壓力下，馬卡里改變立場並批准了這些產品。</span> <span class="cn-sentence" data-id="5">事實上，據美國媒體報導，馬卡里辭職是因為對政府批准這些水果味電子煙的決定感到擔憂，</span> <span class="cn-sentence" data-id="6">因為他的良心不允許他批准這些產品。</span> <span class="cn-sentence" data-id="7">雖然電子煙是導致他辭職的原因，但實際上，馬卡里以改革者身份加入FDA並希望進行變革，這為他在華盛頓及華爾街招致了無數衝突。</span> <span class="cn-sentence" data-id="8">他的決定與美國強大的食品、煙草及製藥業利益發生衝突。</span> <span class="cn-sentence" data-id="9">在FDA局長辭職消息公開後——由數碼媒體《Politico》率先報導——特朗普向記者表示，他祝福馬卡里。</span> <span class="cn-sentence" data-id="10">「馬蒂是個很棒的人，但他會繼續前行，並會擁有美好的生活，」特朗普在啟程前往中國的官方訪問前保證道。</span> <span class="cn-sentence" data-id="11">「他是一位出色的醫生，也遇到了一些困難，」他補充道。</span></div>
+        <div class="sentence-content"><span class="cn-sentence" data-id="1">昨天晚上，佩德羅和安娜去市中心一家新餐廳吃晚餐。</span> <span class="cn-sentence" data-id="2">他們非常開心，因為那天是安娜的生日。</span> <span class="cn-sentence" data-id="3">他們到達時，一位友善的服務生說：「晚上好！兩位嗎？」</span> <span class="cn-sentence" data-id="4">佩德羅回答：「是的，麻煩了。」</span> <span class="cn-sentence" data-id="5">然後他們坐在靠窗的位子，服務生拿來了菜單。</span> <span class="cn-sentence" data-id="6">安娜看著菜單說：「每樣看起來都很好吃！」</span> <span class="cn-sentence" data-id="7">佩德羅笑著回答：「我想我要點牛排配薯條。」</span> <span class="cn-sentence" data-id="8">安娜想了一下然後說：「我要點雞肉沙拉和一份蔬菜湯。」</span> <span class="cn-sentence" data-id="9">服務生回來時，佩德羅說：「我想要一份牛排配薯條，麻煩了。」</span> <span class="cn-sentence" data-id="10">安娜說：「我要雞肉沙拉和一份蔬菜湯。」</span> <span class="cn-sentence" data-id="11">服務生記下後問：「要喝什麼呢？」</span> <span class="cn-sentence" data-id="12">佩德羅回答：「一瓶礦泉水，麻煩了。」</span> <span class="cn-sentence" data-id="13">安娜說：「我要一杯新鮮柳橙汁。」</span> <span class="cn-sentence" data-id="14">過了一會兒，服務生把食物端來了。每樣都非常美味！</span> <span class="cn-sentence" data-id="15">最後，他們要求結帳並留下小費。</span></div>
       </div>
     </div>
     <div class="content pt-content">
-      <p><span class="pt-sentence" data-id="1">Makary <span class="tooltip verb">protagonizou<span class="tooltiptext">to play a leading role in<br>Infinitive: protagonizar</span></span> vários <span class="tooltip vocab">confrontos<span class="tooltiptext">clashes/conflicts</span></span> com a Casa Branca por diferentes questões, como os cigarros eletrónicos ou o aborto,</span> <span class="pt-sentence" data-id="2">e o Chefe de Estado dos EUA já tinha mostrado a sua <span class="tooltip vocab">deceção<span class="tooltiptext">disappointment</span></span> com o agora ex-diretor por não agir com a <span class="tooltip vocab">rapidez<span class="tooltiptext">speed</span></span> suficiente para aprovar aqueles cigarros com sabores e outros produtos com nicotina.</span> <span class="pt-sentence" data-id="3">O motivo <span class="tooltip vocab">alegado<span class="tooltiptext">alleged</span></span> era <span class="tooltip verb">travar<span class="tooltiptext">to curb/stop<br>Infinitive: travar</span></span> o aumento do consumo de vapeadores entre os mais jovens,</span> <span class="pt-sentence" data-id="4">embora, finalmente, e após as aparentes pressões de Trump, Makary tenha <span class="tooltip verb">retificado<span class="tooltiptext">to correct/backtrack<br>Infinitive: retificar</span></span> e <span class="tooltip verb">autorizado<span class="tooltiptext">to authorise<br>Infinitive: autorizar</span></span> os mesmos.</span> <span class="pt-sentence" data-id="5">De facto, e segundo publica a imprensa norte-americana, Makary terá <span class="tooltip verb">renunciado<span class="tooltiptext">to resign<br>Infinitive: renunciar</span></span> devido à sua preocupação com a decisão do Governo de autorizar esses cigarros eletrónicos com sabor a frutas,</span> <span class="pt-sentence" data-id="6">já que a sua <span class="tooltip vocab">consciência<span class="tooltiptext">conscience</span></span> não lhe permitia aprová-los.</span> <span class="pt-sentence" data-id="7">Embora os vapeadores tenham sido o motivo que <span class="tooltip verb">determinou<span class="tooltiptext">to determine/cause<br>Infinitive: determinar</span></span> a renúncia, a realidade é que a chegada de Makary à FDA como um reformador e com vontade de fazer mudanças valeu-lhe numerosos <span class="tooltip vocab">confrontos<span class="tooltiptext">clashes/conflicts</span></span> tanto em Washington como em Wall Street.</span> <span class="pt-sentence" data-id="8">As suas decisões <span class="tooltip verb">chocaram<span class="tooltiptext">to clash<br>Infinitive: chocar</span></span> com os interesses das poderosas indústrias alimentar, tabágica e farmacêutica norte-americana.</span> <span class="pt-sentence" data-id="9">Após tornar-se pública a renúncia do diretor da FDA - antecipada pelo meio digital Político - Trump declarou aos jornalistas que desejava o melhor a Makary.</span> <span class="pt-sentence" data-id="10">&quot;Marty é um tipo fantástico, mas vai seguir em frente e vai ter uma boa vida&quot;, <span class="tooltip verb">assegurou<span class="tooltiptext">to assure<br>Infinitive: assegurar</span></span> Trump antes de iniciar uma viagem oficial à China.</span> <span class="pt-sentence" data-id="11">&quot;É um grande médico e estava a ter algumas dificuldades&quot;, <span class="tooltip verb">acrescentou<span class="tooltiptext">to add<br>Infinitive: acrescentar</span></span>.</span></p>
+      <p><span class="pt-sentence" data-id="1">Ontem à noite, o Pedro e a Ana <span class="tooltip verb">foram<span class="tooltiptext">went (past tense of &#x27;to go&#x27;)<br>Infinitive: ir</span></span> jantar a um restaurante novo no centro da cidade.</span> <span class="pt-sentence" data-id="2">Eles <span class="tooltip verb">estavam<span class="tooltiptext">were (past tense of &#x27;to be&#x27;)<br>Infinitive: estar</span></span> muito contentes porque era o aniversário da Ana.</span> <span class="pt-sentence" data-id="3">Quando chegaram, um <span class="tooltip vocab">empregado<span class="tooltiptext">waiter/server</span></span> simpático <span class="tooltip verb">disse<span class="tooltiptext">said (past tense of &#x27;to say&#x27;)<br>Infinitive: dizer</span></span>: &quot;Boa noite! Mesa para dois?&quot;</span> <span class="pt-sentence" data-id="4">O Pedro respondeu: &quot;Sim, por favor.&quot;</span> <span class="pt-sentence" data-id="5">Depois, sentaram-se perto da janela e o <span class="tooltip vocab">empregado<span class="tooltiptext">waiter/server</span></span> trouxe os menus.</span> <span class="pt-sentence" data-id="6">A Ana olhou para o <span class="tooltip vocab">menu<span class="tooltiptext">menu</span></span> e <span class="tooltip verb">disse<span class="tooltiptext">said (past tense of &#x27;to say&#x27;)<br>Infinitive: dizer</span></span>: &quot;Tudo parece delicioso!&quot;</span> <span class="pt-sentence" data-id="7">O Pedro riu e respondeu: &quot;Acho que <span class="tooltip verb">vou pedir<span class="tooltiptext">I am going to order (future tense)<br>Infinitive: pedir</span></span> o <span class="tooltip vocab">bife<span class="tooltiptext">steak</span></span> com <span class="tooltip vocab">batatas fritas<span class="tooltiptext">fries</span></span>.&quot;</span> <span class="pt-sentence" data-id="8">A Ana pensou um pouco e depois <span class="tooltip verb">disse<span class="tooltiptext">said (past tense of &#x27;to say&#x27;)<br>Infinitive: dizer</span></span>: &quot;<span class="tooltip verb">Vou pedir<span class="tooltiptext">I am going to order (future tense)<br>Infinitive: pedir</span></span> a salada de frango e uma sopa de legumes.&quot;</span> <span class="pt-sentence" data-id="9">Quando o <span class="tooltip vocab">empregado<span class="tooltiptext">waiter/server</span></span> voltou, o Pedro pediu: &quot;Queria um <span class="tooltip vocab">bife<span class="tooltiptext">steak</span></span> com <span class="tooltip vocab">batatas fritas<span class="tooltiptext">fries</span></span>, por favor.&quot;</span> <span class="pt-sentence" data-id="10">A Ana <span class="tooltip verb">disse<span class="tooltiptext">said (past tense of &#x27;to say&#x27;)<br>Infinitive: dizer</span></span>: &quot;E eu queria a salada de frango e uma sopa de legumes.&quot;</span> <span class="pt-sentence" data-id="11">O <span class="tooltip vocab">empregado<span class="tooltiptext">waiter/server</span></span> <span class="tooltip verb">anotou<span class="tooltiptext">wrote down (past tense of &#x27;to note&#x27;)<br>Infinitive: anotar</span></span> tudo e perguntou: &quot;E para beber?&quot;</span> <span class="pt-sentence" data-id="12">O Pedro respondeu: &quot;Uma água mineral, por favor.&quot;</span> <span class="pt-sentence" data-id="13">A Ana <span class="tooltip verb">disse<span class="tooltiptext">said (past tense of &#x27;to say&#x27;)<br>Infinitive: dizer</span></span>: &quot;Eu quero um sumo de laranja natural.&quot;</span> <span class="pt-sentence" data-id="14">Depois de algum tempo, o <span class="tooltip vocab">empregado<span class="tooltiptext">waiter/server</span></span> trouxe a comida. Estava tudo muito bom!</span> <span class="pt-sentence" data-id="15">No fim, pediram a <span class="tooltip vocab">conta<span class="tooltiptext">bill/check</span></span> e deixaram uma <span class="tooltip vocab">gorjeta<span class="tooltiptext">tip</span></span>.</span></p>
     </div>
   </article>
-<article class="card news-article" id="article-2" style="display: none;">
-    <h1>Sistema antimíssil de Trump estimado em 1,2 mil milhões de dólares</h1>
-    <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
-    <div class="oreo-block">
-      <div class="oreo-header">👨‍🏫 我 Oreo Sir 話齋 (Cantonese Teacher)</div>
-      <div class="oreo-content">呢條新聞講緊特朗普想整套「金穹」反導彈系統，同以色列個「Iron Dome」（鐵穹）好似，但CBO話成本要12億美元！A2/B1同學記住兩個重點：1. 「desenvolver」（發展）呢個動詞好常用，例如「desenvolver um projeto」（發展一個項目）；2. 「custar」（花費）唔單止講錢，仲可以講時間精力，例如「Isto custa muito tempo」（呢樣嘢好花時間）。記住呢啲詞語，講起國際大事都可以頭頭是道！</div>
+  <article class="card news-article" id="article-b1b2" style="display: none;">
+    <div class="article-header">
+      <h1>O Futuro da Mobilidade Urbana: Será que os Transportes Públicos Podem Salvar as Nossas Cidades?</h1>
+      <span class="level-badge b1b2">B1-B2 (DEPLE/DIPLE)</span>
     </div>
     <audio controls>
-      <source src="news_2.mp3" type="audio/mpeg">
+      <source src="news_b1b2.mp3" type="audio/mpeg">
       O seu navegador não suporta o elemento de áudio.
     </audio>
-    <button class="btn-translation" data-target="transBox2">Hide Translation</button>
-    <div id="transBox2" class="translation-box" style="display: block;">
+    <button class="btn-translation" data-target="transBox-article-b1b2">Hide Translation</button>
+    <div id="transBox-article-b1b2" class="translation-box" style="display: block;">
       <div class="translation-col">
         <h3>English</h3>
-        <div class="sentence-content"><span class="en-sentence" data-id="1">The figure was released by the Congressional Budget Office (CBO), reported the France-Presse agency (AFP).</span> <span class="en-sentence" data-id="2">In 2025, the U.S. president announced his intention to develop this missile defense system based on Israel&#x27;s &quot;Iron Dome&quot; model.</span> <span class="en-sentence" data-id="3">The goal is to have it operational before the end of his term in 2029.</span> <span class="en-sentence" data-id="4">At the time, he estimated the total cost at &quot;approximately $175 billion after completion.&quot;</span> <span class="en-sentence" data-id="5">However, many experts at the time pointed out that the project was unrealistic and redundant.</span> <span class="en-sentence" data-id="6">Considering the missile defense systems already in use by the United States.</span> <span class="en-sentence" data-id="7">In a report published today by the CBO, this independent congressional agency estimates that a national missile defense system would cost approximately $1.2 billion.</span> <span class="en-sentence" data-id="8">To be developed, deployed, and operated over 20 years.</span> <span class="en-sentence" data-id="9">According to the CBO, the space component of the system would account for nearly 60% of the total costs.</span> <span class="en-sentence" data-id="10">Like the Strategic Defense Initiative (SDI), or &quot;Star Wars,&quot; launched by Ronald Reagan in the 1980s, the Golden Dome aims to position intercepting satellites in space.</span> <span class="en-sentence" data-id="11">The goal is to quickly destroy any intercontinental ballistic missile heading toward the United States.</span> <span class="en-sentence" data-id="12">China and Russia declared last year their strong opposition to this project by Donald Trump.</span></div>
+        <div class="sentence-content"><span class="en-sentence" data-id="1">Modern cities face a growing challenge: how to ensure that millions of people can move efficiently without traffic turning into daily chaos?</span> <span class="en-sentence" data-id="2">Although many still prefer private cars because they offer convenience, the truth is that public transport emerges as the most sustainable solution and, therefore, the most urgent.</span> <span class="en-sentence" data-id="3">However, for this change to happen, it is crucial that governments invest not only in infrastructure but also in campaigns that convince citizens to leave their cars at home.</span> <span class="en-sentence" data-id="4">In Lisbon, for example, the metro and buses have been improving; however, there are still those who complain about overcrowding and delays.</span> <span class="en-sentence" data-id="5">It is undeniable that, despite the flaws, the benefits outweigh the drawbacks.</span> <span class="en-sentence" data-id="6">After all, if everyone chose public transport, the reduction in pollution and time wasted in traffic would be significant.</span> <span class="en-sentence" data-id="7">Moreover, it is important that more bike lanes and pedestrian zones be created so that people feel safe opting for more eco-friendly modes of transport.</span> <span class="en-sentence" data-id="8">Of course, this transition will not be easy.</span> <span class="en-sentence" data-id="9">Many argue that public transport is not accessible to everyone, especially in outlying areas.</span> <span class="en-sentence" data-id="10">Therefore, integrated planning is essential, one that includes not only major avenues but also more remote neighborhoods.</span> <span class="en-sentence" data-id="11">If authorities can prove that this is a viable option, perhaps citizens will begin to see public transport not as a necessary evil but as a smart and responsible choice.</span></div>
       </div>
       <div class="translation-col">
         <h3>中文</h3>
-        <div class="sentence-content"><span class="cn-sentence" data-id="1">這一數字由國會預算辦公室（CBO）公佈，法新社（AFP）報導。</span> <span class="cn-sentence" data-id="2">2025年，美國總統宣布計劃基於以色列「鐵穹」模式開發這套導彈防禦系統。</span> <span class="cn-sentence" data-id="3">目標是在其2029年任期結束前投入運作。</span> <span class="cn-sentence" data-id="4">當時，他估計該系統完成後的總成本約為「1750億美元」。</span> <span class="cn-sentence" data-id="5">然而，許多專家當時指出，該項目不切實際且多餘。</span> <span class="cn-sentence" data-id="6">考慮到美國已有的導彈防禦系統。</span> <span class="cn-sentence" data-id="7">國會預算辦公室今日發表的報告估計，一套國家導彈防禦系統的成本約為12億美元。</span> <span class="cn-sentence" data-id="8">在20年內開發、部署及運作。</span> <span class="cn-sentence" data-id="9">根據CBO的數據，系統的太空部分將佔總成本近60%。</span> <span class="cn-sentence" data-id="10">與羅納德·里根在1980年代推出的「戰略防禦計劃」（SDI，又稱「星球大戰」）類似，金穹系統旨在太空部署攔截衛星。</span> <span class="cn-sentence" data-id="11">目標是迅速摧毀任何飛向美國的洲際彈道導彈。</span> <span class="cn-sentence" data-id="12">中國和俄羅斯去年已強烈反對特朗普的這一項目。</span></div>
+        <div class="sentence-content"><span class="cn-sentence" data-id="1">現代城市面臨著一個日益嚴峻的挑戰：如何確保數百萬人能夠高效出行，而不讓交通陷入每日的混亂？</span> <span class="cn-sentence" data-id="2">儘管許多人仍然偏好私家車，因為它提供了便利性，但事實上，公共交通才是最具可持續性的解決方案，因此也是最迫切的選擇。</span> <span class="cn-sentence" data-id="3">然而，為了實現這一轉變，政府不僅需要投資基礎設施，還必須開展宣傳活動，說服市民將汽車留在家中。</span> <span class="cn-sentence" data-id="4">以里斯本為例，地鐵和公共汽車的服務一直在改善，但仍有人抱怨擁擠和延誤。</span> <span class="cn-sentence" data-id="5">不可否認的是，儘管存在缺陷，但公共交通的益處遠大於弊端。</span> <span class="cn-sentence" data-id="6">畢竟，如果所有人都選擇公共交通，污染和交通堵塞浪費的時間將大幅減少。</span> <span class="cn-sentence" data-id="7">此外，還需要建立更多自行車道和步行區，以便讓人們在選擇更環保的出行方式時感到安全。</span> <span class="cn-sentence" data-id="8">當然，這一轉變並不容易。</span> <span class="cn-sentence" data-id="9">許多人認為公共交通並非對所有人都可及，尤其是在偏遠地區。</span> <span class="cn-sentence" data-id="10">因此，必須進行整體規劃，不僅涵蓋主要幹道，還包括更偏遠的社區。</span> <span class="cn-sentence" data-id="11">如果當局能夠證明這是一個可行的選擇，或許市民將開始將公共交通視為一種明智而負責任的選擇，而非不得已的權宜之計。</span></div>
       </div>
     </div>
     <div class="content pt-content">
-      <p><span class="pt-sentence" data-id="1">O valor foi <span class="tooltip verb">adiantado<span class="tooltiptext">released/announced<br>Infinitive: adiantar</span></span> pelo Gabinete Orçamental do Congresso (CBO, na sigla em inglês), noticiou a agência France-Presse (AFP).</span> <span class="pt-sentence" data-id="2">Em 2025, o presidente norte-americano <span class="tooltip verb">anunciou<span class="tooltiptext">announced<br>Infinitive: anunciar</span></span> a sua intenção de <span class="tooltip vocab">desenvolver<span class="tooltiptext">to develop</span></span> este sistema de defesa antimíssil baseado no modelo israelita &quot;Iron Dome&quot;.</span> <span class="pt-sentence" data-id="3">O objetivo é o ter <span class="tooltip vocab">operacional<span class="tooltiptext">operational</span></span> antes do final do seu <span class="tooltip vocab">mandato<span class="tooltiptext">term (in office)</span></span>, em 2029.</span> <span class="pt-sentence" data-id="4">Na altura, estimou o custo total em &quot;aproximadamente 175 mil milhões de dólares após a conclusão&quot;.</span> <span class="pt-sentence" data-id="5">Contudo, muitos especialistas <span class="tooltip verb">apontaram<span class="tooltiptext">pointed out<br>Infinitive: apontar</span></span>, na época, que o projeto era <span class="tooltip vocab">irrealista<span class="tooltiptext">unrealistic</span></span> e <span class="tooltip vocab">redundante<span class="tooltiptext">redundant</span></span>.</span> <span class="pt-sentence" data-id="6">Considerando os sistemas de defesa antimíssil já em uso pelos Estados Unidos.</span> <span class="pt-sentence" data-id="7">Num relatório <span class="tooltip verb">publicado<span class="tooltiptext">published<br>Infinitive: publicar</span></span> hoje pelo CBO, esta agência independente do Congresso estima que um sistema nacional de defesa antimíssil custaria aproximadamente 1,2 mil milhões de dólares.</span> <span class="pt-sentence" data-id="8">Para ser desenvolvido, <span class="tooltip verb">implantado<span class="tooltiptext">deployed<br>Infinitive: implantar</span></span> e <span class="tooltip verb">operado<span class="tooltiptext">operated<br>Infinitive: operar</span></span> ao longo de 20 anos.</span> <span class="pt-sentence" data-id="9">De acordo com o CBO, a componente espacial do sistema <span class="tooltip verb">representaria<span class="tooltiptext">would account for<br>Infinitive: representar</span></span> quase 60% dos custos totais.</span> <span class="pt-sentence" data-id="10">Tal como a Iniciativa de Defesa Estratégica (SDI, na sigla em inglês), ou Guerra das Estrelas, <span class="tooltip verb">lançada<span class="tooltiptext">launched<br>Infinitive: lançar</span></span> por Ronald Reagan na década de 1980, a Golden Dome <span class="tooltip verb">pretende<span class="tooltiptext">aims/intends<br>Infinitive: pretender</span></span> <span class="tooltip vocab">posicionar<span class="tooltiptext">to position</span></span> satélites intercetores no espaço.</span> <span class="pt-sentence" data-id="11">O objetivo é <span class="tooltip vocab">destruir<span class="tooltiptext">to destroy</span></span> rapidamente qualquer míssil balístico intercontinental que se <span class="tooltip verb">dirija<span class="tooltiptext">heads (toward)<br>Infinitive: dirigir</span></span> para os Estados Unidos.</span> <span class="pt-sentence" data-id="12">A China e a Rússia <span class="tooltip verb">declararam<span class="tooltiptext">declared<br>Infinitive: declarar</span></span> no ano passado a sua forte <span class="tooltip vocab">oposição<span class="tooltiptext">opposition</span></span> a este projeto de Donald Trump.</span></p>
+      <p><span class="pt-sentence" data-id="1">As cidades modernas enfrentam um <span class="tooltip vocab">desafio<span class="tooltiptext">challenge</span></span> crescente: como garantir que milhões de pessoas se <span class="tooltip verb">desloquem<span class="tooltiptext">to move (subjunctive present)<br>Infinitive: deslocar</span></span> de forma eficiente, sem que o trânsito se transforme num caos diário?</span> <span class="pt-sentence" data-id="2"><span class="tooltip vocab">Apesar de<span class="tooltiptext">despite, even though</span></span> muitos ainda preferirem o carro particular, uma vez que este oferece comodidade, a verdade é que os transportes públicos surgem como a solução mais sustentável e, <span class="tooltip vocab">por conseguinte<span class="tooltiptext">therefore, consequently</span></span>, mais urgente.</span> <span class="pt-sentence" data-id="3"><span class="tooltip vocab">No entanto<span class="tooltiptext">however, nevertheless</span></span>, para que esta mudança aconteça, é fundamental que os governos invistam não só em infraestruturas, mas também em campanhas que <span class="tooltip verb">convençam<span class="tooltiptext">to convince (subjunctive present)<br>Infinitive: convencer</span></span> os cidadãos a deixar o automóvel em casa.</span> <span class="pt-sentence" data-id="4">Em Lisboa, por exemplo, o metro e os autocarros têm vindo a melhorar, <span class="tooltip vocab">contudo<span class="tooltiptext">however</span></span>, ainda há quem <span class="tooltip verb">reclame<span class="tooltiptext">to complain (subjunctive present in relative clause)<br>Infinitive: reclamar</span></span> da lotação e dos atrasos.</span> <span class="pt-sentence" data-id="5">É inegável que, <span class="tooltip vocab">apesar de<span class="tooltiptext">despite, even though</span></span> existirem falhas, os benefícios <span class="tooltip verb">superam<span class="tooltiptext">to surpass, to outweigh (present indicative)<br>Infinitive: superar</span></span> os inconvenientes.</span> <span class="pt-sentence" data-id="6">Afinal, se todos <span class="tooltip verb">optassem<span class="tooltiptext">to choose (imperfect subjunctive)<br>Infinitive: optar</span></span> pelo transporte coletivo, a redução da poluição e do tempo perdido no trânsito seria significativa.</span> <span class="pt-sentence" data-id="7">Além disso, é importante que se criem mais ciclovias e zonas pedonais, <span class="tooltip vocab">a fim de que<span class="tooltiptext">so that, in order that</span></span> as pessoas se sintam seguras ao optar por modos de deslocação mais ecológicos.</span> <span class="pt-sentence" data-id="8">Claro que esta transição não será fácil.</span> <span class="pt-sentence" data-id="9">Muitos argumentam que os transportes públicos não são acessíveis a todos, especialmente nas áreas <span class="tooltip vocab">periféricas<span class="tooltiptext">outlying, peripheral</span></span>.</span> <span class="pt-sentence" data-id="10">Portanto, é essencial que haja um planeamento integrado, que inclua não só as grandes avenidas, mas também os bairros mais afastados.</span> <span class="pt-sentence" data-id="11">Se as autoridades <span class="tooltip verb">conseguirem<span class="tooltiptext">to achieve (future subjunctive)<br>Infinitive: conseguir</span></span> provar que esta é uma aposta <span class="tooltip vocab">viável<span class="tooltiptext">viable, feasible</span></span>, talvez os cidadãos comecem a ver os transportes públicos não como um mal necessário, mas como uma escolha inteligente e responsável.</span></p>
     </div>
   </article>
-<article class="card news-article" id="article-3" style="display: none;">
-    <h1>Acordo comercial com UE abre &quot;novos horizontes&quot; comerciais ao México</h1>
-    <div class="meta">Notícias ao Minuto · PT-PT Daily News</div>
-    <div class="oreo-block">
-      <div class="oreo-header">👨‍🏫 我 Oreo Sir 話齋 (Cantonese Teacher)</div>
-      <div class="oreo-content">呢條新聞講緊歐盟同墨西哥簽新貿易協議，可以話係「開新路」俾墨西哥經濟！🌍💼 同學仔要留意兩個詞語：1. 「acordo」（協議）讀「a-cor-do」，好似「acordo comercial」（貿易協議）；2. 「investimento」（投資）讀「in-ves-ti-men-to」，記住呢個詞，將來講生意一定用得著！😉 記住，學葡文唔好怕難，多啲聽多啲講，自然識！</div>
-    </div>
-    <audio controls>
-      <source src="news_3.mp3" type="audio/mpeg">
-      O seu navegador não suporta o elemento de áudio.
-    </audio>
-    <button class="btn-translation" data-target="transBox3">Hide Translation</button>
-    <div id="transBox3" class="translation-box" style="display: block;">
-      <div class="translation-col">
-        <h3>English</h3>
-        <div class="sentence-content"><span class="en-sentence" data-id="1">The updated trade agreement between the EU and Mexico will be signed on May 22 in Mexico City, in the presence of European Commission President Ursula von der Leyen, at the high-level bilateral summit for the first time in over a decade.</span> <span class="en-sentence" data-id="2">It is very important to move forward with the review of the treaty with the United States and Canada; it is fundamental, but we are also opening other avenues.</span> <span class="en-sentence" data-id="3">We are opening new horizons (...) because we also need to protect our economy.</span> <span class="en-sentence" data-id="4">According to Claudia Sheinbaum, the update of the agreement with the EU will attract more foreign investment to Mexico and increase the commercialization of the Latin American country&#x27;s products in Europe.</span> <span class="en-sentence" data-id="5">Negotiations for a revised agreement began in May 2016, and a principle agreement on trade aspects was reached in 2018 but was never ratified.</span> <span class="en-sentence" data-id="6">The revised agreement includes new areas such as digital commerce, support for small and medium-sized enterprises (SMEs), and preferential access for Mexican agro-food products in the European market.</span> <span class="en-sentence" data-id="7">Sheinbaum highlighted that the modernized agreement demonstrates security for foreign investment.</span> <span class="en-sentence" data-id="8">It is a very positive step and clearly shows the security that exists regarding the country.</span> <span class="en-sentence" data-id="9">The update of the agreement with the EU coincides with negotiations between Mexico, the United States, and Canada to review their free trade agreement, the USMCA, amid the aggressive tariff policies of U.S. President Donald Trump.</span> <span class="en-sentence" data-id="10">Mexico is the EU&#x27;s second-largest trading partner in Latin America, after Brazil.</span> <span class="en-sentence" data-id="11">In 2025, the European Union was the second-largest market for Mexican exports, with 27.7 billion dollars (23.6 billion euros), while imports totaled nearly 67 billion dollars (57 billion euros).</span></div>
-      </div>
-      <div class="translation-col">
-        <h3>中文</h3>
-        <div class="sentence-content"><span class="cn-sentence" data-id="1">歐盟與墨西哥更新的貿易協議將於5月22日在墨西哥城簽署，屆時歐盟委員會主席烏爾蘇拉·馮德萊恩將出席這場逾十年來首次舉行的高級別雙邊峰會。</span> <span class="cn-sentence" data-id="2">推進與美國和加拿大的條約修訂非常重要，這是根本，但我們也在開拓其他途徑。</span> <span class="cn-sentence" data-id="3">我們正在開拓新的視野（……）因為我們也需要保護我們的經濟。</span> <span class="cn-sentence" data-id="4">克勞迪婭·辛鮑姆表示，與歐盟的協議更新將吸引更多外國投資到墨西哥，並增加拉丁美洲國家產品在歐洲的商業化。</span> <span class="cn-sentence" data-id="5">修訂協議的談判始於2016年5月，2018年就貿易方面達成原則性協議，但從未獲得批准。</span> <span class="cn-sentence" data-id="6">修訂後的協議涵蓋新領域，如數字貿易、對中小企業（PME）的支持，以及墨西哥農產食品在歐洲市場的優先准入。</span> <span class="cn-sentence" data-id="7">辛鮑姆強調，現代化的協議展示了對外國投資的安全保障。</span> <span class="cn-sentence" data-id="8">這是非常積極的一步，充分展示了對該國的投資安全。</span> <span class="cn-sentence" data-id="9">歐盟與墨西哥的協議更新正值墨西哥、美國和加拿大就修訂其自由貿易協議《美墨加協議》（USMCA）進行談判之際，當時美國總統唐納德·特朗普的關稅政策咄咄逼人。</span> <span class="cn-sentence" data-id="10">墨西哥是歐盟在拉丁美洲的第二大貿易夥伴，僅次於巴西。</span> <span class="cn-sentence" data-id="11">2025年，歐盟是墨西哥出口的第二大市場，出口額達277億美元（236億歐元），而進口總額則接近670億美元（570億歐元）。</span></div>
-      </div>
-    </div>
-    <div class="content pt-content">
-      <p><span class="pt-sentence" data-id="1">O <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> <span class="tooltip vocab">comercial<span class="tooltiptext">commercial/trade</span></span> atualizado entre a UE e o México será <span class="tooltip verb">assinado<span class="tooltiptext">signed<br>Infinitive: assinar</span></span> a 22 de maio na Cidade do México, na presença da presidente da Comissão Europeia, Ursula von der Leyen, na <span class="tooltip vocab">cimeira<span class="tooltiptext">summit</span></span> <span class="tooltip vocab">bilateral<span class="tooltiptext">bilateral</span></span> de alto nível em mais de uma década.</span> <span class="pt-sentence" data-id="2">É muito importante <span class="tooltip verb">avançar<span class="tooltiptext">to advance/move forward<br>Infinitive: avançar</span></span> com a <span class="tooltip vocab">revisão<span class="tooltiptext">review/revision</span></span> do <span class="tooltip vocab">tratado<span class="tooltiptext">treaty</span></span> com os Estados Unidos e o Canadá; é fundamental, mas também estamos a <span class="tooltip verb">abrir<span class="tooltiptext">to open<br>Infinitive: abrir</span></span> outras <span class="tooltip vocab">vias<span class="tooltiptext">avenues/paths</span></span>.</span> <span class="pt-sentence" data-id="3">Estamos a <span class="tooltip verb">abrir<span class="tooltiptext">to open<br>Infinitive: abrir</span></span> novos <span class="tooltip vocab">horizontes<span class="tooltiptext">horizons</span></span> (...) porque também precisamos de <span class="tooltip verb">proteger<span class="tooltiptext">to protect<br>Infinitive: proteger</span></span> a nossa economia.</span> <span class="pt-sentence" data-id="4">Segundo Claudia Sheinbaum, a <span class="tooltip vocab">atualização<span class="tooltiptext">update</span></span> do <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> com a UE vai <span class="tooltip verb">atrair<span class="tooltiptext">to attract<br>Infinitive: atrair</span></span> mais <span class="tooltip vocab">investimento<span class="tooltiptext">investment</span></span> estrangeiro para o México e aumentar a <span class="tooltip vocab">comercialização<span class="tooltiptext">commercialization</span></span> dos produtos do país latino-americano na Europa.</span> <span class="pt-sentence" data-id="5">As <span class="tooltip vocab">negociações<span class="tooltiptext">negotiations</span></span> para um <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> revisto começaram em maio de 2016, e um <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> de princípio sobre aspetos comerciais foi <span class="tooltip verb">alcançado<span class="tooltiptext">reached/achieved<br>Infinitive: alcançar</span></span> em 2018, mas nunca <span class="tooltip verb">ratificado<span class="tooltiptext">ratified<br>Infinitive: ratificar</span></span>.</span> <span class="pt-sentence" data-id="6">O <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> revisto inclui novas áreas como o comércio digital, o <span class="tooltip vocab">apoio<span class="tooltiptext">support</span></span> às pequenas e médias empresas (PME) e o acesso <span class="tooltip vocab">preferencial<span class="tooltiptext">preferential</span></span> para os produtos <span class="tooltip vocab">agroalimentares<span class="tooltiptext">agri-food</span></span> mexicanos no mercado europeu.</span> <span class="pt-sentence" data-id="7">Sheinbaum <span class="tooltip verb">salientou<span class="tooltiptext">highlighted/emphasized<br>Infinitive: salientar</span></span> que o <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> <span class="tooltip verb">modernizado<span class="tooltiptext">modernized<br>Infinitive: modernizar</span></span> demonstra <span class="tooltip vocab">segurança<span class="tooltiptext">security/safety</span></span> para o <span class="tooltip vocab">investimento<span class="tooltiptext">investment</span></span> estrangeiro.</span> <span class="pt-sentence" data-id="8">É um passo muito positivo e demonstra bem a <span class="tooltip vocab">segurança<span class="tooltiptext">security/safety</span></span> que existe em relação ao país.</span> <span class="pt-sentence" data-id="9">A <span class="tooltip vocab">atualização<span class="tooltiptext">update</span></span> do <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> com a UE <span class="tooltip verb">coincide<span class="tooltiptext">coincides<br>Infinitive: coincidir</span></span> com as <span class="tooltip vocab">negociações<span class="tooltiptext">negotiations</span></span> entre o México, os Estados Unidos e o Canadá para rever o seu <span class="tooltip vocab">acordo<span class="tooltiptext">agreement</span></span> de comércio livre, o USMCA, no meio das <span class="tooltip vocab">políticas<span class="tooltiptext">policies</span></span> <span class="tooltip vocab">tarifárias<span class="tooltiptext">tariff-related</span></span> <span class="tooltip vocab">agressivas<span class="tooltiptext">aggressive</span></span> do Presidente norte-americano, Donald Trump.</span> <span class="pt-sentence" data-id="10">O México é o segundo maior <span class="tooltip vocab">parceiro<span class="tooltiptext">partner</span></span> <span class="tooltip vocab">comercial<span class="tooltiptext">commercial/trade</span></span> da UE na América Latina, a seguir ao Brasil.</span> <span class="pt-sentence" data-id="11">Em 2025, a União Europeia foi o segundo maior mercado para as <span class="tooltip vocab">exportações<span class="tooltiptext">exports</span></span> mexicanas, com 27,7 mil milhões de dólares (23,6 mil milhões de euros), enquanto as <span class="tooltip vocab">importações<span class="tooltiptext">imports</span></span> totalizaram quase 67 mil milhões de dólares (57 mil milhões de euros).</span></p>
-    </div>
-  </article>
-  <button id="nextBtn">Next News ⏭️</button>
+
   <footer>
     <span class="legend">
       <span class="dot" style="background:#f59e0b;"></span> Difficult vocab
@@ -357,11 +352,32 @@
       <span class="dot" style="background:#dbeafe;"></span> Sentence sync
     </span>
     <br><br>
-    Generated automatically by PT-PT Daily News
+    PT-PT Daily News – Dual-Engine Learning Platform
   </footer>
 </div>
 <script>
 (function() {
+  // Tab switching
+  window.switchTab = function(level) {
+    var a2Card = document.getElementById('article-a2');
+    var b1b2Card = document.getElementById('article-b1b2');
+    var tabA2 = document.getElementById('tab-a2');
+    var tabB1B2 = document.getElementById('tab-b1b2');
+
+    if (level === 'A2') {
+      a2Card.style.display = 'block';
+      b1b2Card.style.display = 'none';
+      tabA2.classList.add('active-a2');
+      tabB1B2.classList.remove('active-b1b2');
+    } else {
+      a2Card.style.display = 'none';
+      b1b2Card.style.display = 'block';
+      tabA2.classList.remove('active-a2');
+      tabB1B2.classList.add('active-b1b2');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Toggle translation visibility per article
   document.querySelectorAll('.btn-translation').forEach(function(btn) {
     btn.addEventListener('click', function() {
@@ -400,28 +416,6 @@
       if (id) unhighlightGroup(id);
     });
   });
-
-  // Next News navigation
-  var current = 1;
-  var total = 3;
-  var nextBtn = document.getElementById('nextBtn');
-  if (nextBtn) {
-    nextBtn.addEventListener('click', function() {
-      if (current >= total) return;
-      var cur = document.getElementById('article-' + current);
-      if (cur) cur.style.display = 'none';
-      current++;
-      var nxt = document.getElementById('article-' + current);
-      if (nxt) {
-        nxt.style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      if (current >= total) {
-        nextBtn.textContent = 'No more news today';
-        nextBtn.disabled = true;
-      }
-    });
-  }
 })();
 </script>
 </body>
