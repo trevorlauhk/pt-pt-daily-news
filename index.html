@@ -208,12 +208,19 @@
   .pt-sentence, .en-sentence, .cn-sentence {
     cursor: default;
     transition: background 0.2s ease;
-    padding: 2px 0;
-    border-radius: 4px;
+    padding: 6px 4px;
+    border-radius: 6px;
+    line-height: 2.4;
+    display: inline;
   }
-  .pt-sentence { display: inline; }
   .pt-sentence:hover, .en-sentence:hover, .cn-sentence:hover {
     background: var(--sync-bg);
+  }
+  @media (hover: none) {
+    .pt-sentence, .en-sentence, .cn-sentence {
+      padding: 8px 6px;
+      line-height: 2.6;
+    }
   }
   .sentence-highlight {
     background: var(--sync-bg) !important;
@@ -274,6 +281,11 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+  .tooltip.tooltip-active .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
   .legend {
     display: inline-flex;
     align-items: center;
@@ -316,12 +328,12 @@
 
   <article class="card news-article" id="article-a2" style="display: block;">
     <div class="article-header">
-      <h1>Uma Manhã no Continente</h1>
+      <h1>Um Dia Doce na Pastelaria da Esquina</h1>
       <span class="level-badge a2">A2 (CIPLE)</span>
     </div>
     <div class="oreo-tips-block">
       <div class="oreo-tips-header">🐶 Oreo Sir 小 Tips</div>
-      <div class="oreo-tips-content">汪汪！Oreo Sir來啦！🍪 今天的超市故事超實用，記得「fazer uma lista」很重要，這樣買東西不會忘記喔！「Precisar de」是「需要」的意思，像「Eu preciso de leite」（我需要牛奶），超簡單！記得動詞變化要練習，像「quero」（我想要）、「queria」（我想要過），這樣買東西才不會搞錯！加油，你是最棒的汪星人學生！🐶🍪</div>
+      <div class="oreo-tips-content">汪汪！Oreo Sir 來啦！🍪 今天學「provar」這個動詞，超實用！在麵包店嚐嚐看蛋糕，就像我嚐嚐看你的努力一樣甜！記得：「Eu provei」是過去式，用來說你吃過的美味。下次去麵包店，大膽說「Posso provar?」吧！汪星人保證，老闆會笑得像我吃到餅乾一樣開心！🐾 加油，你是最棒的學習者！</div>
     </div>
     <audio controls>
       <source src="news_a2.mp3" type="audio/mpeg">
@@ -331,25 +343,25 @@
     <div id="transBox-article-a2" class="translation-box" style="display: block;">
       <div class="translation-col">
         <h3>English</h3>
-        <div class="sentence-content"><span class="en-sentence" data-id="1">This morning, Ana went to the Continente supermarket.</span> <span class="en-sentence" data-id="2">She needed to buy some things for dinner.</span> <span class="en-sentence" data-id="3">Before leaving, she made a list: bread, milk, eggs, tomatoes, and chicken.</span> <span class="en-sentence" data-id="4">When she arrived, she grabbed a basket and started walking through the aisles.</span> <span class="en-sentence" data-id="5">In the first aisle, she saw lots of fruit.</span> <span class="en-sentence" data-id="6">The strawberries were very red and smelled good.</span> <span class="en-sentence" data-id="7">Ana wanted to buy them, but she remembered she didn’t have enough money.</span> <span class="en-sentence" data-id="8">So, she moved on.</span> <span class="en-sentence" data-id="9">Then, she found the bread and milk.</span> <span class="en-sentence" data-id="10">She took a pack of sliced bread and a bottle of semi-skimmed milk.</span> <span class="en-sentence" data-id="11">She also saw yogurts on sale, but she didn’t take any.</span> <span class="en-sentence" data-id="12">In the meat aisle, Ana looked for the chicken.</span> <span class="en-sentence" data-id="13">She saw a nice, cheap pack and weighed it.</span> <span class="en-sentence" data-id="14">Then, she went to the checkout and paid for everything.</span> <span class="en-sentence" data-id="15">When Ana got home, she was happy.</span> <span class="en-sentence" data-id="16">Now, she’s going to cook chicken with tomatoes and rice.</span></div>
+        <div class="sentence-content"><span class="en-sentence" data-id="1">This morning, I went to the corner bakery with my friend Ana.</span> <span class="en-sentence" data-id="2">It was a beautiful day, and we wanted to eat something sweet.</span> <span class="en-sentence" data-id="3">When we arrived, we saw many delicious things: cakes, pies, croissants, and fresh bread.</span> <span class="en-sentence" data-id="4">Ana said, &quot;I’m going to buy a pastel de nata. It’s my favorite!&quot;</span> <span class="en-sentence" data-id="5">I looked at the cakes and didn’t know what to choose.</span> <span class="en-sentence" data-id="6">Then, the lady at the bakery asked, &quot;Would you like to try a piece of chocolate cake?&quot;</span> <span class="en-sentence" data-id="7">I accepted and tried it. It was delicious!</span> <span class="en-sentence" data-id="8">After that, I bought a chocolate cake and a coffee.</span> <span class="en-sentence" data-id="9">Ana paid for the pastries and an orange juice.</span> <span class="en-sentence" data-id="10">We sat at a table near the window and talked.</span> <span class="en-sentence" data-id="11">Before leaving, we bought two more pastéis de nata to take home.</span> <span class="en-sentence" data-id="12">The lady wrapped them in pretty paper and said, &quot;Come back anytime!&quot;</span> <span class="en-sentence" data-id="13">We promised to return next week.</span> <span class="en-sentence" data-id="14">It was a very pleasant and sweet day!</span></div>
       </div>
       <div class="translation-col">
         <h3>中文</h3>
-        <div class="sentence-content"><span class="cn-sentence" data-id="1">今天早上，安娜去了Continente超市。</span> <span class="cn-sentence" data-id="2">她需要買一些晚餐的食材。</span> <span class="cn-sentence" data-id="3">出門前，她列了一張清單：麵包、牛奶、雞蛋、番茄和雞肉。</span> <span class="cn-sentence" data-id="4">到達超市後，她拿了一個籃子，開始逛各個走道。</span> <span class="cn-sentence" data-id="5">在第一個走道，她看到很多水果。</span> <span class="cn-sentence" data-id="6">草莓又紅又香。</span> <span class="cn-sentence" data-id="7">安娜很想買，但想起來錢不夠。</span> <span class="cn-sentence" data-id="8">於是，她繼續往前走。</span> <span class="cn-sentence" data-id="9">接著，她找到了麵包和牛奶。</span> <span class="cn-sentence" data-id="10">她拿了一包切片麵包和一瓶半脫脂牛奶。</span> <span class="cn-sentence" data-id="11">她也看到特價優格，但沒有拿。</span> <span class="cn-sentence" data-id="12">在肉類走道，安娜找到了雞肉。</span> <span class="cn-sentence" data-id="13">她看到一包又便宜又好看的雞肉，稱了一下。</span> <span class="cn-sentence" data-id="14">然後，她去收銀台結帳。</span> <span class="cn-sentence" data-id="15">回到家後，安娜很開心。</span> <span class="cn-sentence" data-id="16">現在，她要做番茄雞肉配米飯。</span></div>
+        <div class="sentence-content"><span class="cn-sentence" data-id="1">今天早上，我和朋友安娜一起去了街角的麵包店。</span> <span class="cn-sentence" data-id="2">那是一個美好的日子，我們想吃點甜食。</span> <span class="cn-sentence" data-id="3">到達時，我們看到很多美味的東西：蛋糕、派、牛角麵包和新鮮麵包。</span> <span class="cn-sentence" data-id="4">安娜說：「我要買葡式蛋撻。那是我的最愛！」</span> <span class="cn-sentence" data-id="5">我看著蛋糕，不知道該選什麼。</span> <span class="cn-sentence" data-id="6">這時，麵包店的女士問：「要不要嚐一塊巧克力蛋糕？」</span> <span class="cn-sentence" data-id="7">我答應了，嚐了一口。真的很好吃！</span> <span class="cn-sentence" data-id="8">之後，我買了一塊巧克力蛋糕和一杯咖啡。</span> <span class="cn-sentence" data-id="9">安娜付了蛋撻和一杯橙汁的錢。</span> <span class="cn-sentence" data-id="10">我們坐在靠窗的桌子旁聊天。</span> <span class="cn-sentence" data-id="11">離開前，我們又買了兩個葡式蛋撻帶回家。</span> <span class="cn-sentence" data-id="12">女士用漂亮的紙包好，說：「歡迎隨時再來！」</span> <span class="cn-sentence" data-id="13">我們答應下週再來。</span> <span class="cn-sentence" data-id="14">這真是愉快又甜蜜的一天！</span></div>
       </div>
     </div>
     <div class="content pt-content">
-      <p><span class="pt-sentence" data-id="1">Hoje de manhã, a Ana <span class="tooltip verb">foi<span class="tooltiptext">went (simple past of &#x27;to go&#x27;)<br>Infinitive: ir</span></span> ao supermercado Continente.</span> <span class="pt-sentence" data-id="2">Ela <span class="tooltip verb">precisava<span class="tooltiptext">needed (imperfect past of &#x27;to need&#x27;)<br>Infinitive: precisar</span></span> de comprar algumas coisas para o jantar.</span> <span class="pt-sentence" data-id="3">Antes de sair, <span class="tooltip verb">fez<span class="tooltiptext">made (simple past of &#x27;to make/do&#x27;)<br>Infinitive: fazer</span></span> uma lista: pão, leite, ovos, tomates e frango.</span> <span class="pt-sentence" data-id="4">Quando chegou, <span class="tooltip verb">pegou<span class="tooltiptext">grabbed/took (simple past of &#x27;to take&#x27;)<br>Infinitive: pegar</span></span> num <span class="tooltip vocab">cesto<span class="tooltiptext">basket</span></span> e começou a andar pelos <span class="tooltip vocab">corredores<span class="tooltiptext">aisles</span></span>.</span> <span class="pt-sentence" data-id="5">No primeiro corredor, viu muitas frutas.</span> <span class="pt-sentence" data-id="6">Os morangos estavam muito vermelhos e <span class="tooltip verb">cheiravam<span class="tooltiptext">smelled (imperfect past of &#x27;to smell&#x27;)<br>Infinitive: cheirar</span></span> bem.</span> <span class="pt-sentence" data-id="7">A Ana quis comprar, mas lembrou-se que não tinha dinheiro suficiente.</span> <span class="pt-sentence" data-id="8">Então, seguiu em frente.</span> <span class="pt-sentence" data-id="9">Depois, encontrou o pão e o leite.</span> <span class="pt-sentence" data-id="10"><span class="tooltip verb">Pegou<span class="tooltiptext">grabbed/took (simple past of &#x27;to take&#x27;)<br>Infinitive: pegar</span></span> num pacote de pão de forma e numa garrafa de leite <span class="tooltip vocab">meio-gordo<span class="tooltiptext">semi-skimmed (type of milk)</span></span>.</span> <span class="pt-sentence" data-id="11">Também viu iogurtes em <span class="tooltip vocab">promoção<span class="tooltiptext">sale/promotion</span></span>, mas não levou.</span> <span class="pt-sentence" data-id="12">No corredor das carnes, a Ana procurou o frango.</span> <span class="pt-sentence" data-id="13">Viu um pacote bonito e barato e pesou-o.</span> <span class="pt-sentence" data-id="14">Depois, <span class="tooltip verb">foi<span class="tooltiptext">went (simple past of &#x27;to go&#x27;)<br>Infinitive: ir</span></span> à caixa e <span class="tooltip verb">pagou<span class="tooltiptext">paid (simple past of &#x27;to pay&#x27;)<br>Infinitive: pagar</span></span> tudo.</span> <span class="pt-sentence" data-id="15">Quando chegou a casa, a Ana estava feliz.</span> <span class="pt-sentence" data-id="16">Agora, <span class="tooltip verb">vai cozinhar<span class="tooltiptext">is going to cook (near future)<br>Infinitive: cozinhar</span></span> frango com tomate e arroz.</span></p>
+      <p><span class="pt-sentence" data-id="1">Hoje de manhã, eu <span class="tooltip verb">fui<span class="tooltiptext">past tense of &#x27;to go&#x27; (I went)<br>Infinitive: ir</span></span> à <span class="tooltip vocab">pastelaria<span class="tooltiptext">bakery (Portuguese-style)</span></span> da esquina com a minha amiga Ana.</span> <span class="pt-sentence" data-id="2">Era um dia bonito e nós <span class="tooltip verb">queríamos<span class="tooltiptext">imperfect tense of &#x27;to want&#x27; (we wanted)<br>Infinitive: querer</span></span> comer algo doce.</span> <span class="pt-sentence" data-id="3">Quando <span class="tooltip verb">chegámos<span class="tooltiptext">past tense of &#x27;to arrive&#x27; (we arrived)<br>Infinitive: chegar</span></span>, <span class="tooltip verb">vimos<span class="tooltiptext">past tense of &#x27;to see&#x27; (we saw)<br>Infinitive: ver</span></span> muitas coisas deliciosas: bolos, tortas, croissants e pães frescos.</span> <span class="pt-sentence" data-id="4">A Ana disse: &quot;Vou comprar um <span class="tooltip vocab">pastel de nata<span class="tooltiptext">Portuguese custard tart</span></span>. É o meu favorito!&quot;</span> <span class="pt-sentence" data-id="5">Eu olhei para os bolos e não sabia o que escolher.</span> <span class="pt-sentence" data-id="6">Então, a senhora da <span class="tooltip vocab">pastelaria<span class="tooltiptext">bakery (Portuguese-style)</span></span> perguntou: &quot;Quer <span class="tooltip verb">provar<span class="tooltiptext">to try (food)<br>Infinitive: provar</span></span> um pedaço de bolo de chocolate?&quot;</span> <span class="pt-sentence" data-id="7">Eu aceitei e provei. Estava delicioso!</span> <span class="pt-sentence" data-id="8">Depois, eu comprei um bolo de chocolate e um café.</span> <span class="pt-sentence" data-id="9">A Ana pagou os pastéis e um <span class="tooltip vocab">sumo<span class="tooltiptext">juice</span></span> de laranja.</span> <span class="pt-sentence" data-id="10">Nós sentámo-nos numa mesa perto da janela e <span class="tooltip verb">conversámos<span class="tooltiptext">past tense of &#x27;to talk&#x27; (we talked)<br>Infinitive: conversar</span></span>.</span> <span class="pt-sentence" data-id="11">Antes de sair, comprámos mais dois pastéis de nata para levar para casa.</span> <span class="pt-sentence" data-id="12">A senhora <span class="tooltip verb">embrulhou<span class="tooltiptext">past tense of &#x27;to wrap&#x27; (she wrapped)<br>Infinitive: embrulhar</span></span>-os num papel bonito e disse: &quot;Voltem sempre!&quot;</span> <span class="pt-sentence" data-id="13">Nós <span class="tooltip verb">prometemos<span class="tooltiptext">past tense of &#x27;to promise&#x27; (we promised)<br>Infinitive: prometer</span></span> voltar na próxima semana.</span> <span class="pt-sentence" data-id="14">Foi um dia muito <span class="tooltip vocab">agradável<span class="tooltiptext">pleasant/nice</span></span> e doce!</span></p>
     </div>
   </article>
   <article class="card news-article" id="article-b1b2" style="display: none;">
     <div class="article-header">
-      <h1>Arte e Cultura: O Coração que Faz uma Sociedade Bater Mais Forte</h1>
+      <h1>Sabores que Contam Histórias: Como a Gastronomia Portuguesa se Reinventou sem Perder a Alma</h1>
       <span class="level-badge b1b2">B1-B2 (DEPLE/DIPLE)</span>
     </div>
     <div class="oreo-tips-block">
       <div class="oreo-tips-header">🐶 Oreo Sir 小 Tips</div>
-      <div class="oreo-tips-content">汪汪！我是Oreo Sir，你的葡語學習夥伴🍪！今天來談談這篇文章中的「conjuntivo」和高級連接詞吧！記得「a fim de que」後面要用conjuntivo，例如「a fim de que todos entendam」🎨。還有，像「apesar de」和「no entanto」這些連接詞，能讓你的文章更有深度，就像我啃骨頭一樣有層次！別怕用複雜句，你的葡語會像我一樣閃閃發光！加油，小主人！🐾🍪</div>
+      <div class="oreo-tips-content">汪汪！我是Oreo Sir，你的葡語學習好夥伴🍪！這次的文章充滿了美味的*conjuntivo*和高級連接詞，就像一道道精心烹調的佳餚！記得：*a fim de que*、*apesar de*、*desde que*這些連接詞能讓你的句子更有層次，像疊疊樂一樣穩固又好看！🍪 別怕用*conjuntivo*，它就像鹽巴，少了就淡而無味！加油，你是最棒的汪星人學生！🐶✨</div>
     </div>
     <audio controls>
       <source src="news_b1b2.mp3" type="audio/mpeg">
@@ -359,15 +371,15 @@
     <div id="transBox-article-b1b2" class="translation-box" style="display: block;">
       <div class="translation-col">
         <h3>English</h3>
-        <div class="sentence-content"><span class="en-sentence" data-id="1">In a world increasingly dominated by technology and haste, it is easy to forget the value of art and culture.</span> <span class="en-sentence" data-id="2">However, it is precisely these human expressions that remind us of what it truly means to be human.</span> <span class="en-sentence" data-id="3">Although many consider art a superfluous luxury, the truth is that it plays a fundamental role in building a more empathetic, critical, and united society.</span> <span class="en-sentence" data-id="4">Art, whether through painting, music, theater, or literature, allows us to see the world from different perspectives.</span> <span class="en-sentence" data-id="5">When we read a poem that moves us or watch a play that makes us reflect, we are exercising our ability to understand emotions and realities that might otherwise go unnoticed.</span> <span class="en-sentence" data-id="6">Therefore, art is not merely entertainment; it is a powerful tool for personal and collective development.</span> <span class="en-sentence" data-id="7">Furthermore, culture, understood as the set of traditions, values, and manifestations of a people, is what connects us to the past and guides us toward the future.</span> <span class="en-sentence" data-id="8">A society that values its culture is one that preserves its identity, even in a globalized context.</span> <span class="en-sentence" data-id="9">However, for this to happen, it is necessary that institutions invest in artistic education and that citizens recognize its importance.</span> <span class="en-sentence" data-id="10">Unfortunately, in times of economic crisis, the budgets allocated to culture are often the first to be cut.</span> <span class="en-sentence" data-id="11">It is crucial, therefore, that we do not let art be seen as an accessory, but rather as a necessity.</span> <span class="en-sentence" data-id="12">After all, a society without art is like a body without a soul: it may function, but it will never live fully.</span> <span class="en-sentence" data-id="13">So that future generations can enjoy a richer and more diverse world, it is up to us to defend and promote art and culture in all their forms.</span></div>
+        <div class="sentence-content"><span class="en-sentence" data-id="1">When we think of Portuguese gastronomy, it’s almost impossible not to recall the traditional dishes that have spanned centuries: *bacalhau à brás*, *feijoada*, or the iconic *pastel de nata*.</span> <span class="en-sentence" data-id="2">However, despite tradition remaining at the heart of our cuisine, the truth is that it has been transforming in surprising ways.</span> <span class="en-sentence" data-id="3">Today, innovative chefs blend modern techniques with ancestral ingredients so that the flavors of the past may find new life in the present.</span> <span class="en-sentence" data-id="4">Yet, this evolution does not come without challenges.</span> <span class="en-sentence" data-id="5">Many fear that by modernizing century-old dishes, we might lose the essence of what makes us unique.</span> <span class="en-sentence" data-id="6">It’s understandable that there is resistance, since food is deeply tied to our cultural identity.</span> <span class="en-sentence" data-id="7">Therefore, it is essential that this reinvention be done with respect, preserving what is most authentic about us while embracing new influences.</span> <span class="en-sentence" data-id="8">An inspiring example is the use of local products in contemporary creations.</span> <span class="en-sentence" data-id="9">Since sustainability became a priority, many restaurants have opted for seasonal and locally sourced ingredients, thereby reducing their ecological footprint.</span> <span class="en-sentence" data-id="10">Moreover, globalization has brought a fusion of flavors, such as the use of Asian spices in traditional dishes, which, though controversial, enriches our gastronomic palette.</span> <span class="en-sentence" data-id="11">Thus, Portuguese gastronomy is not stagnant; on the contrary, it breathes and adapts, just like the people who created it.</span> <span class="en-sentence" data-id="12">May we continue to celebrate our roots, but without fear of experimenting.</span> <span class="en-sentence" data-id="13">After all, this is how great stories—and great dishes—stay alive.</span></div>
       </div>
       <div class="translation-col">
         <h3>中文</h3>
-        <div class="sentence-content"><span class="cn-sentence" data-id="1">在這個越來越被科技和匆忙主導的世界裡，我們很容易忘記藝術和文化的價值。</span> <span class="cn-sentence" data-id="2">然而，正是這些人類的表達方式提醒我們何為真正的人性。</span> <span class="cn-sentence" data-id="3">儘管許多人認為藝術是一種多餘的奢侈品，但事實上，它在建構一個更具同理心、批判性和團結的社會中扮演著關鍵角色。</span> <span class="cn-sentence" data-id="4">藝術，無論是透過繪畫、音樂、戲劇還是文學，都讓我們能夠從不同的角度看待世界。</span> <span class="cn-sentence" data-id="5">當我們閱讀一首感動我們的詩，或觀看一部讓我們反思的戲劇時，我們正在鍛煉自己理解那些可能被忽略的情感和現實的能力。</span> <span class="cn-sentence" data-id="6">因此，藝術不僅僅是娛樂；它是個人和集體發展的強大工具。</span> <span class="cn-sentence" data-id="7">此外，文化，作為一個民族的傳統、價值觀和表現形式的總和，將我們與過去連結，並引導我們走向未來。</span> <span class="cn-sentence" data-id="8">一個重視自身文化的社會，即使在全球化的背景下，也能保持其身份認同。</span> <span class="cn-sentence" data-id="9">然而，為了實現這一點，機構必須投資於藝術教育，而公民也必須認識到其重要性。</span> <span class="cn-sentence" data-id="10">不幸的是，在經濟危機時期，文化預算往往是首當其衝被削減的對象。</span> <span class="cn-sentence" data-id="11">因此，至關重要的是，我們不能讓藝術被視為一種附屬品，而應將其視為一種必需品。</span> <span class="cn-sentence" data-id="12">畢竟，一個沒有藝術的社會就像一具沒有靈魂的軀體：它可能運作，但永遠不會真正地活著。</span> <span class="cn-sentence" data-id="13">為了讓未來的世代能夠享受一個更豐富、更多樣化的世界，我們有責任捍衛並推廣各種形式的藝術和文化。</span></div>
+        <div class="sentence-content"><span class="cn-sentence" data-id="1">當我們想到葡萄牙美食時，幾乎不可能不想起那些流傳了幾個世紀的傳統菜餚：*葡式鱈魚球*、*豆子燉肉*，或是標誌性的*蛋塔*。</span> <span class="cn-sentence" data-id="2">然而，儘管傳統仍然是我們飲食文化的核心，事實上它正以令人驚訝的方式不斷演變。</span> <span class="cn-sentence" data-id="3">如今，創新的廚師將現代技術與古老食材融合，讓過去的味道在當下煥發新生。</span> <span class="cn-sentence" data-id="4">不過，這種演變並非沒有挑戰。</span> <span class="cn-sentence" data-id="5">許多人擔心，在現代化百年菜餚的同時，我們可能會失去自身的獨特精髓。</span> <span class="cn-sentence" data-id="6">這種抵觸情緒可以理解，因為美食與我們的文化認同緊密相連。</span> <span class="cn-sentence" data-id="7">因此，這種創新必須懷抱敬意，在擁抱新影響的同時，保留最真實的自我。</span> <span class="cn-sentence" data-id="8">一個鼓舞人心的例子是當地食材在現代創作中的運用。</span> <span class="cn-sentence" data-id="9">自從永續發展成為優先考量後，許多餐廳開始選擇當季和本地食材，從而減少生態足跡。</span> <span class="cn-sentence" data-id="10">此外，全球化帶來了風味的融合，例如在傳統菜餚中加入亞洲香料，儘管這引發爭議，卻豐富了我們的美食調色盤。</span> <span class="cn-sentence" data-id="11">因此，葡萄牙美食並非停滯不前；相反地，它像創造它的人民一樣，不斷呼吸、適應。</span> <span class="cn-sentence" data-id="12">讓我們繼續慶祝根源，但不畏懼嘗試。</span> <span class="cn-sentence" data-id="13">畢竟，偉大的故事——和偉大的菜餚——正是這樣保持鮮活。</span></div>
       </div>
     </div>
     <div class="content pt-content">
-      <p><span class="pt-sentence" data-id="1">Num mundo cada vez mais dominado pela tecnologia e pela pressa, é fácil <span class="tooltip verb">esquecermo-nos<span class="tooltiptext">to forget (reflexive)<br>Infinitive: esquecer-se</span></span> do valor da arte e da cultura.</span> <span class="pt-sentence" data-id="2">Contudo, são precisamente estas expressões humanas que nos <span class="tooltip verb">recordam<span class="tooltiptext">to remind<br>Infinitive: recordar</span></span> o que significa ser verdadeiramente humano.</span> <span class="pt-sentence" data-id="3">Apesar de muitos considerarem a arte um luxo supérfluo, a verdade é que ela <span class="tooltip verb">desempenha<span class="tooltiptext">to play (a role)<br>Infinitive: desempenhar</span></span> um papel fundamental na construção de uma sociedade mais empática, crítica e unida.</span> <span class="pt-sentence" data-id="4">A arte, seja através da pintura, da música, do teatro ou da literatura, permite-nos ver o mundo sob diferentes perspetivas.</span> <span class="pt-sentence" data-id="5">Quando lemos um poema que nos <span class="tooltip verb">comove<span class="tooltiptext">to move (emotionally)<br>Infinitive: comover</span></span> ou assistimos a uma peça que nos faz <span class="tooltip verb">refletir<span class="tooltiptext">to reflect</span></span>, estamos a exercitar a nossa capacidade de compreender emoções e realidades que, de outra forma, poderiam passar <span class="tooltip vocab">despercebidas<span class="tooltiptext">unnoticed</span></span>.</span> <span class="pt-sentence" data-id="6"><span class="tooltip vocab">Por conseguinte<span class="tooltiptext">therefore</span></span>, a arte não é apenas entretenimento; é uma ferramenta poderosa para o desenvolvimento pessoal e coletivo.</span> <span class="pt-sentence" data-id="7">Além disso, a cultura, <span class="tooltip verb">entendida<span class="tooltiptext">understood (past participle)<br>Infinitive: entender</span></span> como o conjunto de tradições, valores e manifestações de um povo, é o que nos liga ao passado e nos orienta para o futuro.</span> <span class="pt-sentence" data-id="8">Uma sociedade que valoriza a sua cultura é uma sociedade que preserva a sua identidade, mesmo num contexto <span class="tooltip vocab">globalizado<span class="tooltiptext">globalized</span></span>.</span> <span class="pt-sentence" data-id="9">No entanto, para que isso aconteça, é necessário que as instituições invistam na educação artística e que os cidadãos reconheçam a sua importância.</span> <span class="pt-sentence" data-id="10">Infelizmente, em tempos de crise económica, são muitas vezes os orçamentos destinados à cultura os primeiros a serem cortados.</span> <span class="pt-sentence" data-id="11">É <span class="tooltip vocab">crucial<span class="tooltiptext">crucial</span></span>, portanto, que não deixemos que a arte seja vista como um <span class="tooltip vocab">acessório<span class="tooltiptext">accessory</span></span>, mas sim como uma necessidade.</span> <span class="pt-sentence" data-id="12">Afinal, uma sociedade sem arte é como um corpo sem alma: pode funcionar, mas nunca viverá plenamente.</span> <span class="pt-sentence" data-id="13"><span class="tooltip vocab">A fim de que<span class="tooltiptext">so that (subjunctive trigger)</span></span> as gerações futuras possam <span class="tooltip verb">desfrutar<span class="tooltiptext">to enjoy</span></span> de um mundo mais rico e diverso, <span class="tooltip verb">cabe-nos<span class="tooltiptext">it is up to us (impersonal + reflexive)<br>Infinitive: caber</span></span> a nós defender e promover a arte e a cultura em todas as suas formas.</span></p>
+      <p><span class="pt-sentence" data-id="1">Quando pensamos na gastronomia portuguesa, é quase impossível não <span class="tooltip verb">recordar<span class="tooltiptext">to recall, remember<br>Infinitive: recordar</span></span> os pratos tradicionais que <span class="tooltip verb">atravessaram<span class="tooltiptext">to cross, span (past tense)<br>Infinitive: atravessar</span></span> séculos: o bacalhau à brás, a feijoada, ou o icónico pastel de nata.</span> <span class="pt-sentence" data-id="2">No entanto, <span class="tooltip vocab">apesar de<span class="tooltiptext">despite, even though</span></span> a tradição continuar a ser o coração da nossa cozinha, a verdade é que ela tem vindo a transformar-se de formas surpreendentes.</span> <span class="pt-sentence" data-id="3">Hoje, chefs inovadores misturam técnicas modernas com ingredientes ancestrais, <span class="tooltip vocab">a fim de que<span class="tooltiptext">so that (subjunctive trigger)</span></span> os sabores do passado <span class="tooltip verb">encontrem<span class="tooltiptext">to find (present subjunctive)<br>Infinitive: encontrar</span></span> um novo fôlego no presente.</span> <span class="pt-sentence" data-id="4">Contudo, esta evolução não acontece sem desafios.</span> <span class="pt-sentence" data-id="5">Muitos <span class="tooltip verb">receiam<span class="tooltiptext">to fear (present tense)<br>Infinitive: recear</span></span> que, ao modernizar pratos centenários, <span class="tooltip verb">percamos<span class="tooltiptext">to lose (present subjunctive)<br>Infinitive: perder</span></span> a essência do que nos torna únicos.</span> <span class="pt-sentence" data-id="6">É compreensível que haja resistência, uma vez que a comida está profundamente ligada à nossa identidade cultural.</span> <span class="pt-sentence" data-id="7"><span class="tooltip vocab">Por conseguinte<span class="tooltiptext">therefore, consequently</span></span>, é essencial que esta <span class="tooltip vocab">reinvenção<span class="tooltiptext">reinvention (noun)</span></span> seja feita com respeito, preservando o que de mais autêntico temos, ao mesmo tempo que abraçamos novas influências.</span> <span class="pt-sentence" data-id="8">Um exemplo inspirador é o uso de produtos locais em criações contemporâneas.</span> <span class="pt-sentence" data-id="9"><span class="tooltip vocab">Desde que<span class="tooltiptext">since, as long as (conjunction)</span></span> a sustentabilidade se tornou uma prioridade, muitos restaurantes têm optado por ingredientes sazonais e de proximidade, reduzindo assim a pegada ecológica.</span> <span class="pt-sentence" data-id="10">Além disso, a globalização trouxe consigo uma fusão de sabores, como o uso de especiarias asiáticas em pratos típicos, o que, <span class="tooltip vocab">apesar de<span class="tooltiptext">despite, even though</span></span> <span class="tooltip vocab">controverso<span class="tooltiptext">controversial (adjective)</span></span>, <span class="tooltip verb">enriquece<span class="tooltiptext">to enrich (present tense)<br>Infinitive: enriquecer</span></span> a nossa <span class="tooltip vocab">paleta<span class="tooltiptext">palette (figurative, e.g., flavors)</span></span> gastronómica.</span> <span class="pt-sentence" data-id="11">Portanto, a gastronomia portuguesa não está <span class="tooltip vocab">estagnada<span class="tooltiptext">stagnant (adjective)</span></span>; pelo contrário, ela respira e adapta-se, tal como o povo que a criou.</span> <span class="pt-sentence" data-id="12">Que continuemos a celebrar as nossas raízes, mas sem medo de experimentar.</span> <span class="pt-sentence" data-id="13">Afinal, é assim que as grandes histórias — e os grandes pratos — se mantêm vivos.</span></p>
     </div>
   </article>
 
@@ -427,25 +439,57 @@
     });
   });
 
-  // Sentence hover sync across PT / EN / CN
-  function highlightGroup(id) {
+  // Sentence sync: hover (desktop) + click (mobile)
+  function highlightGroup(id, active) {
     document.querySelectorAll('[data-id="' + id + '"]').forEach(function(el) {
-      el.classList.add('sentence-highlight');
+      if (active) {
+        el.classList.add('sentence-highlight');
+      } else {
+        el.classList.remove('sentence-highlight');
+      }
     });
   }
-  function unhighlightGroup(id) {
-    document.querySelectorAll('[data-id="' + id + '"]').forEach(function(el) {
+  function clearAllHighlights() {
+    document.querySelectorAll('.sentence-highlight').forEach(function(el) {
       el.classList.remove('sentence-highlight');
     });
   }
   document.querySelectorAll('.pt-sentence, .en-sentence, .cn-sentence').forEach(function(span) {
     span.addEventListener('mouseenter', function() {
       var id = this.getAttribute('data-id');
-      if (id) highlightGroup(id);
+      if (id) highlightGroup(id, true);
     });
     span.addEventListener('mouseleave', function() {
       var id = this.getAttribute('data-id');
-      if (id) unhighlightGroup(id);
+      if (id) highlightGroup(id, false);
+    });
+    span.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var id = this.getAttribute('data-id');
+      if (!id) return;
+      var already = this.classList.contains('sentence-highlight');
+      clearAllHighlights();
+      if (!already) highlightGroup(id, true);
+    });
+  });
+  document.addEventListener('click', function() {
+    clearAllHighlights();
+  });
+
+  // Tooltip: tap to toggle on mobile / click outside to close
+  document.querySelectorAll('.tooltip').forEach(function(tip) {
+    tip.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var wasActive = this.classList.contains('tooltip-active');
+      document.querySelectorAll('.tooltip-active').forEach(function(t) {
+        t.classList.remove('tooltip-active');
+      });
+      if (!wasActive) this.classList.add('tooltip-active');
+    });
+  });
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.tooltip-active').forEach(function(t) {
+      t.classList.remove('tooltip-active');
     });
   });
 })();
