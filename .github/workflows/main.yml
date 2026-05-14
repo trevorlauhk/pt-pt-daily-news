@@ -27,6 +27,7 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           AZURE_TTS_KEY: ${{ secrets.AZURE_TTS_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: python main.py
 
       - name: 🚀 Deploy to GitHub Pages

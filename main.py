@@ -18,9 +18,7 @@ a morning email digest.
 Required env vars:
     OPENROUTER_API_KEY
     AZURE_TTS_KEY
-    SMTP_SERVER          (optional, for email)
-    EMAIL_USER           (optional, for email)
-    EMAIL_PASS           (optional, for email)
+    RESEND_API_KEY       (optional, for email digest)
     GITHUB_PAGES_URL     (optional, default: https://yourname.github.io/repo)
 """
 
@@ -31,10 +29,7 @@ import json
 import os
 import random
 import re
-import smtplib
 import sys
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from pathlib import Path
 
 import requests
@@ -679,12 +674,19 @@ def generate_html_page(articles: list[dict], out_path: Path) -> None:
   .pt-sentence, .en-sentence, .cn-sentence {{
     cursor: default;
     transition: background 0.2s ease;
-    padding: 2px 0;
-    border-radius: 4px;
+    padding: 6px 4px;
+    border-radius: 6px;
+    line-height: 2.4;
+    display: inline;
   }}
-  .pt-sentence {{ display: inline; }}
   .pt-sentence:hover, .en-sentence:hover, .cn-sentence:hover {{
     background: var(--sync-bg);
+  }}
+  @media (hover: none) {{
+    .pt-sentence, .en-sentence, .cn-sentence {{
+      padding: 8px 6px;
+      line-height: 2.6;
+    }}
   }}
   .sentence-highlight {{
     background: var(--sync-bg) !important;
@@ -741,6 +743,11 @@ def generate_html_page(articles: list[dict], out_path: Path) -> None:
     border-color: #1f2937 transparent transparent transparent;
   }}
   .tooltip:hover .tooltiptext {{
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }}
+  .tooltip.tooltip-active .tooltiptext {{
     visibility: visible;
     opacity: 1;
     transform: translateX(-50%) translateY(0);
@@ -844,25 +851,57 @@ def generate_html_page(articles: list[dict], out_path: Path) -> None:
     }});
   }});
 
-  // Sentence hover sync across PT / EN / CN
-  function highlightGroup(id) {{
+  // Sentence sync: hover (desktop) + click (mobile)
+  function highlightGroup(id, active) {{
     document.querySelectorAll('[data-id="' + id + '"]').forEach(function(el) {{
-      el.classList.add('sentence-highlight');
+      if (active) {{
+        el.classList.add('sentence-highlight');
+      }} else {{
+        el.classList.remove('sentence-highlight');
+      }}
     }});
   }}
-  function unhighlightGroup(id) {{
-    document.querySelectorAll('[data-id="' + id + '"]').forEach(function(el) {{
+  function clearAllHighlights() {{
+    document.querySelectorAll('.sentence-highlight').forEach(function(el) {{
       el.classList.remove('sentence-highlight');
     }});
   }}
   document.querySelectorAll('.pt-sentence, .en-sentence, .cn-sentence').forEach(function(span) {{
     span.addEventListener('mouseenter', function() {{
       var id = this.getAttribute('data-id');
-      if (id) highlightGroup(id);
+      if (id) highlightGroup(id, true);
     }});
     span.addEventListener('mouseleave', function() {{
       var id = this.getAttribute('data-id');
-      if (id) unhighlightGroup(id);
+      if (id) highlightGroup(id, false);
+    }});
+    span.addEventListener('click', function(e) {{
+      e.stopPropagation();
+      var id = this.getAttribute('data-id');
+      if (!id) return;
+      var already = this.classList.contains('sentence-highlight');
+      clearAllHighlights();
+      if (!already) highlightGroup(id, true);
+    }});
+  }});
+  document.addEventListener('click', function() {{
+    clearAllHighlights();
+  }});
+
+  // Tooltip: tap to toggle on mobile / click outside to close
+  document.querySelectorAll('.tooltip').forEach(function(tip) {{
+    tip.addEventListener('click', function(e) {{
+      e.stopPropagation();
+      var wasActive = this.classList.contains('tooltip-active');
+      document.querySelectorAll('.tooltip-active').forEach(function(t) {{
+        t.classList.remove('tooltip-active');
+      }});
+      if (!wasActive) this.classList.add('tooltip-active');
+    }});
+  }});
+  document.addEventListener('click', function() {{
+    document.querySelectorAll('.tooltip-active').forEach(function(t) {{
+      t.classList.remove('tooltip-active');
     }});
   }});
 }})();
@@ -876,22 +915,19 @@ def generate_html_page(articles: list[dict], out_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
-# 5. Email Digest
+# 5. Email Digest (Resend API)
 # ---------------------------------------------------------------------------
 
 
 def send_email_digest(articles: list[dict]) -> None:
-    smtp_server = os.environ.get("SMTP_SERVER")
-    email_user = os.environ.get("EMAIL_USER")
-    email_pass = os.environ.get("EMAIL_PASS")
-
-    if not all([smtp_server, email_user, email_pass]):
-        print("[5/5] SMTP credentials not set, skipping email.")
+    resend_key = os.environ.get("RESEND_API_KEY")
+    if not resend_key:
+        print("[5/5] RESEND_API_KEY not set, skipping email.")
         return
 
-    print("[5/5] Sending email digest…")
+    print("[5/5] Sending email digest via Resend…")
 
-    recipients = ["trevorlau@gmail.com", "claire.cheukying@gmail.com"]
+    recipients = ["t@gmail.com", "c@gmail.com"]
     subject = "🇵🇹 PT-PT Daily News – Dual-Engine Learning"
 
     a2 = next((a for a in articles if a["level"] == "A2"), articles[0])
@@ -931,31 +967,24 @@ def send_email_digest(articles: list[dict]) -> None:
 </html>
 """
 
-    # Plain-text fallback
-    plain_body = (
-        f"PT-PT Daily News – Dual-Engine Learning\n\n"
-        f"Today's A2 Article (CIPLE):\n"
-        f"  {a2['title']}\n"
-        f"  Topic: {a2.get('topic', 'N/A')}\n\n"
-        f"Today's B1-B2 Article (DEPLE/DIPLE):\n"
-        f"  {b1b2['title']}\n"
-        f"  Topic: {b1b2.get('topic', 'N/A')}\n\n"
-        f"Read more: {GITHUB_PAGES_URL}\n"
-    )
-
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = email_user
-    msg["To"] = ", ".join(recipients)
-
-    msg.attach(MIMEText(plain_body, "plain", "utf-8"))
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
+    payload = {
+        "from": "Oreo Sir 葡文報 <oreosir@news.oreofamily.com>",
+        "to": recipients,
+        "subject": subject,
+        "html": html_body,
+    }
 
     try:
-        with smtplib.SMTP(smtp_server, 587, timeout=30) as server:
-            server.starttls()
-            server.login(email_user, email_pass)
-            server.sendmail(email_user, recipients, msg.as_string())
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {resend_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=30,
+        )
+        resp.raise_for_status()
         print(f"    Email sent to {', '.join(recipients)}")
     except Exception as exc:
         print(f"    Warning: failed to send email: {exc}")
