@@ -19,6 +19,7 @@ Required env vars:
     OPENROUTER_API_KEY
     AZURE_TTS_KEY
     RESEND_API_KEY       (optional, for email digest)
+    EMAIL_RECIPIENTS     (optional, comma-separated list for email digest)
     GITHUB_PAGES_URL     (optional, default: https://yourname.github.io/repo)
 """
 
@@ -927,7 +928,12 @@ def send_email_digest(articles: list[dict]) -> None:
 
     print("[5/5] Sending email digest via Resend…")
 
-    recipients = ["t@gmail.com", "c@gmail.com"]
+    recipients_raw = os.environ.get("EMAIL_RECIPIENTS", "")
+    recipients = [r.strip() for r in recipients_raw.split(",") if r.strip()]
+    if not recipients:
+        print("[5/5] EMAIL_RECIPIENTS not set, skipping email.")
+        return
+
     subject = "🇵🇹 PT-PT Daily News – Dual-Engine Learning"
 
     a2 = next((a for a in articles if a["level"] == "A2"), articles[0])
