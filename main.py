@@ -20,7 +20,7 @@ Required env vars:
     AZURE_TTS_KEY
     RESEND_API_KEY       (optional, for email digest)
     EMAIL_RECIPIENTS     (optional, comma-separated list for email digest)
-    GITHUB_PAGES_URL     (optional, default: https://yourname.github.io/repo)
+    GITHUB_PAGES_URL     (optional, default: https://trevorlauhk.github.io/pt-pt-daily-news/)
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ import requests
 from openai import OpenAI
 
 GITHUB_PAGES_URL = os.environ.get(
-    "GITHUB_PAGES_URL", "https://yourname.github.io/pt-pt-daily-news"
+    "GITHUB_PAGES_URL", "https://trevorlauhk.github.io/pt-pt-daily-news/"
 )
 
 # ---------------------------------------------------------------------------
